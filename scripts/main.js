@@ -1,7 +1,7 @@
 // ===== 設定値 =====
 
 // TODO: あとで最新バージョンに差し替え
-const DD_VERSION = "14.2.1";
+const DD_VERSION = "15.23.1";
 
 // UI言語コード → Data Dragon ロケール
 const DD_LOCALE_MAP = {
@@ -81,7 +81,7 @@ function showStatus(key) {
 
 async function loadLanguage(lang) {
   try {
-    const res = await fetch(`./lang/${lang}.json`);
+    const res = await fetch(`lang/${lang}.json`);
     if (!res || !res.ok) {
       throw new Error("failed to load lang file");
     }
