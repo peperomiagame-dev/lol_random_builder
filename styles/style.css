@@ -208,3 +208,70 @@ label {
   font-size: 0.8rem;
   color: #6b7280;
 }
+
+/* === 画像付き結果表示用のスタイル === */
+
+.champion-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.champion-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+.champion-name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.item-row,
+.rune-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+}
+
+.item-icon,
+.rune-icon,
+.rune-style-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+}
+
+.item-name,
+.rune-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rune-style-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.rune-style-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rune-section-title {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}

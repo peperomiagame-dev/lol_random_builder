@@ -16,9 +16,11 @@
   "label_items": "아이템",
   "label_runes": "룬",
   "msg_loading": "게임 데이터를 불러오는 중...",
-  "msg_ready": "준비 완료. 빌드를 굴리려면 '빌드 생성'을 누르세요.",
+  "msg_ready": "준비 완료. '빌드 생성' 버튼을 누르면 랜덤 빌드가 생성됩니다.",
   "msg_error": "데이터를 불러오는 중 오류가 발생했습니다.",
-  "footer_description": "랭크용이 아닌, 놀기 좋은 LoL 빌드 랜덤 빌더입니다.",
+  "msg_generating": "랜덤 빌드를 생성하는 중입니다...",
+  "msg_no_champion": "챔피언이 선택되지 않아 랜덤으로 선택합니다.",
+  "footer_description": "랭크용이 아닌, 재미를 위한 LoL 빌드 랜덤 빌더입니다.",
   "btn_share": "공유 (준비 중)",
   "ad_placeholder": "광고 자리 (추가 예정)"
 }

@@ -10,6 +10,10 @@ const DD_LOCALE_MAP = {
   ko: "ko_KR"
 };
 
+// Data Dragon 画像用
+const DD_IMG_BASE = `https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/img`;
+const DD_IMG_BASE_GENERAL = "https://ddragon.leagueoflegends.com/cdn/img";
+
 // LocalStorage に保存するキー
 const STORAGE_LANG_KEY = "lol_rb_lang";
 
@@ -63,8 +67,6 @@ function applyTranslations() {
     if (!key) {
       return;
     }
-
-    // 今回は textContent だけを対象にする
     el.textContent = t(key);
   });
 }
@@ -79,9 +81,7 @@ function showStatus(key) {
 
 async function loadLanguage(lang) {
   try {
-    const res = await fetch(`../lang/${lang}.json`).catch(() =>
-      fetch(`./lang/${lang}.json`)
-    );
+    const res = await fetch(`./lang/${lang}.json`);
     if (!res || !res.ok) {
       throw new Error("failed to load lang file");
     }
@@ -97,7 +97,7 @@ async function loadLanguage(lang) {
   }
 }
 
-// ===== Data Dragon 関連（骨組み） =====
+// ===== Data Dragon 関連 =====
 
 function getCurrentLocaleCode() {
   return DD_LOCALE_MAP[currentLang] || "en_US";
@@ -130,9 +130,7 @@ async function loadDataDragonData() {
     itemsData = itemJson;
     runesData = runeJson;
 
-    // TODO: ここで champion セレクトに一覧を流し込む処理をあとで作る
     populateChampionSelect();
-
     showStatus("msg_ready");
   } catch (err) {
     console.error("Failed to load Data Dragon data:", err);
@@ -140,22 +138,33 @@ async function loadDataDragonData() {
   }
 }
 
-// チャンピオンセレクトの中身を更新（雛形）
+function getChampionEntries() {
+  if (!championsData || !championsData.data) return [];
+  return Object.values(championsData.data);
+}
+
+function getChampionById(id) {
+  if (!championsData || !championsData.data) return null;
+  return championsData.data[id] || null;
+}
+
+// チャンピオンセレクトの中身を更新
 function populateChampionSelect() {
   if (!championsData) return;
 
   const select = document.getElementById("championSelect");
   if (!select) return;
 
-  // 先頭はプレースホルダーを残すので、一度それだけ残して削除
-  const placeholderOption = select.querySelector("option[value='']");
-  select.innerHTML = "";
-  if (placeholderOption) {
-    select.appendChild(placeholderOption);
-  }
+  const placeholderValue = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = placeholderValue;
+  placeholder.setAttribute("data-i18n", "champion_placeholder");
+  placeholder.textContent = t("champion_placeholder");
 
-  const data = championsData.data || {};
-  const entries = Object.values(data);
+  select.innerHTML = "";
+  select.appendChild(placeholder);
+
+  const entries = getChampionEntries();
 
   entries
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -165,9 +174,326 @@ function populateChampionSelect() {
       opt.textContent = champ.name;
       select.appendChild(opt);
     });
+
+  // 再翻訳（placeholderテキスト）
+  applyTranslations();
 }
 
-// ===== イベント登録 =====
+// ===== 結果描画（画像付き） =====
+
+function renderChampion(champ) {
+  const container = document.getElementById("resultChampion");
+  if (!container) return;
+  container.innerHTML = "";
+  if (!champ) return;
+
+  const card = document.createElement("div");
+  card.className = "champion-card";
+
+  const img = document.createElement("img");
+  img.className = "champion-icon";
+  img.alt = champ.name;
+  img.src = `${DD_IMG_BASE}/champion/${champ.image.full}`;
+
+  const nameEl = document.createElement("div");
+  nameEl.className = "champion-name";
+  nameEl.textContent = champ.name;
+
+  card.appendChild(img);
+  card.appendChild(nameEl);
+  container.appendChild(card);
+}
+
+function isItemAvailableOnSR(item) {
+  if (!item.maps) return true;
+  return item.maps["11"] !== false;
+}
+
+function isBoots(item) {
+  return Array.isArray(item.tags) && item.tags.includes("Boots");
+}
+
+function pickRandomDistinct(list, count) {
+  const copy = list.slice();
+  const result = [];
+  while (copy.length > 0 && result.length < count) {
+    const idx = Math.floor(Math.random() * copy.length);
+    result.push(copy[idx]);
+    copy.splice(idx, 1);
+  }
+  return result;
+}
+
+function classifyItemPools(allItems) {
+  const boots = [];
+  const ap = [];
+  const ad = [];
+  const tank = [];
+  const bruiser = [];
+  const any = [];
+
+  allItems.forEach((item) => {
+    if (!isItemAvailableOnSR(item)) return;
+    if (item.inStore === false) return;
+
+    any.push(item);
+
+    if (isBoots(item)) {
+      boots.push(item);
+      return;
+    }
+
+    const tags = item.tags || [];
+    const hasAP = tags.includes("SpellDamage");
+    const hasAD = tags.includes("Damage") || tags.includes("AttackDamage");
+    const hasHP = tags.includes("Health");
+    const hasArmor = tags.includes("Armor");
+    const hasMR = tags.includes("SpellBlock");
+
+    if (hasAP) ap.push(item);
+    if (hasAD) ad.push(item);
+    if (hasHP || hasArmor || hasMR) tank.push(item);
+    if ((hasAD || hasAP) && (hasHP || hasArmor || hasMR)) bruiser.push(item);
+  });
+
+  return { boots, ap, ad, tank, bruiser, any };
+}
+
+function pickRandomItemsByBuildType(buildType) {
+  if (!itemsData || !itemsData.data) return [];
+
+  const allItems = Object.entries(itemsData.data).map(([id, item]) => {
+    return { id, ...item };
+  });
+
+  const { boots, ap, ad, tank, bruiser, any } = classifyItemPools(allItems);
+
+  let pool;
+  switch (buildType) {
+    case "ap":
+      pool = ap.length > 0 ? ap : any;
+      break;
+    case "ad":
+      pool = ad.length > 0 ? ad : any;
+      break;
+    case "tank":
+      pool = tank.length > 0 ? tank : any;
+      break;
+    case "bruiser":
+      pool = bruiser.length > 0 ? bruiser : any;
+      break;
+    case "random":
+      {
+        const types = ["ap", "ad", "tank", "bruiser"];
+        const picked = types[Math.floor(Math.random() * types.length)];
+        return pickRandomItemsByBuildType(picked);
+      }
+    case "chaos":
+    default:
+      pool = any;
+      break;
+  }
+
+  const chosenBoots =
+    boots.length > 0 ? pickRandomDistinct(boots, 1) : [];
+
+  const mainPool = pool.filter(
+    (item) => !isBoots(item)
+  );
+  const mains = pickRandomDistinct(mainPool, 5);
+
+  return [...chosenBoots, ...mains];
+}
+
+function renderItems(items) {
+  const list = document.getElementById("resultItems");
+  if (!list) return;
+  list.innerHTML = "";
+
+  if (!items || items.length === 0) {
+    return;
+  }
+
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "item-row";
+
+    const img = document.createElement("img");
+    img.className = "item-icon";
+    img.src = `${DD_IMG_BASE}/item/${item.image.full}`;
+    img.alt = item.name;
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "item-name";
+    nameEl.textContent = item.name;
+
+    li.appendChild(img);
+    li.appendChild(nameEl);
+    list.appendChild(li);
+  });
+}
+
+function pickRandomRunesByBuildType(buildType) {
+  if (!Array.isArray(runesData) || runesData.length === 0) return null;
+
+  const styles = runesData.slice();
+
+  const primaryStyle = styles[Math.floor(Math.random() * styles.length)];
+
+  const keystoneSlot = primaryStyle.slots[0];
+  const keystone =
+    keystoneSlot.runes[
+      Math.floor(Math.random() * keystoneSlot.runes.length)
+    ];
+
+  const primaryRunes = [];
+  for (let i = 1; i < primaryStyle.slots.length; i++) {
+    const slot = primaryStyle.slots[i];
+    if (!slot || !Array.isArray(slot.runes) || slot.runes.length === 0) {
+      continue;
+    }
+    const r =
+      slot.runes[Math.floor(Math.random() * slot.runes.length)];
+    primaryRunes.push(r);
+  }
+
+  const secondaryCandidates = styles.filter(
+    (s) => s.id !== primaryStyle.id
+  );
+  const secondaryStyle =
+    secondaryCandidates[
+      Math.floor(Math.random() * secondaryCandidates.length)
+    ];
+
+  const secondaryRunes = [];
+  const secondarySlots = secondaryStyle.slots.slice(1);
+  const flatSecondary = secondarySlots.flatMap((slot) => slot.runes || []);
+  const secPicked = pickRandomDistinct(flatSecondary, 2);
+  secPicked.forEach((r) => secondaryRunes.push(r));
+
+  return {
+    primaryStyle,
+    secondaryStyle,
+    keystone,
+    primaryRunes,
+    secondaryRunes
+  };
+}
+
+function renderRunes(runePage) {
+  const container = document.getElementById("resultRunes");
+  if (!container) return;
+  container.innerHTML = "";
+  if (!runePage) return;
+
+  const {
+    primaryStyle,
+    secondaryStyle,
+    keystone,
+    primaryRunes,
+    secondaryRunes
+  } = runePage;
+
+  const styleRow = document.createElement("div");
+  styleRow.className = "rune-style-row";
+
+  function createStyleLabel(style, labelKey) {
+    const wrap = document.createElement("div");
+    wrap.className = "rune-style-label";
+
+    if (style.icon) {
+      const img = document.createElement("img");
+      img.className = "rune-style-icon";
+      img.src = `${DD_IMG_BASE_GENERAL}/${style.icon}`;
+      img.alt = style.name;
+      wrap.appendChild(img);
+    }
+
+    const text = document.createElement("span");
+    text.textContent = `${t(labelKey)}: ${style.name}`;
+    wrap.appendChild(text);
+
+    return wrap;
+  }
+
+  styleRow.appendChild(createStyleLabel(primaryStyle, "label_runes_primary" in translations ? "label_runes_primary" : "Primary"));
+  styleRow.appendChild(createStyleLabel(secondaryStyle, "label_runes_secondary" in translations ? "label_runes_secondary" : "Secondary"));
+
+  container.appendChild(styleRow);
+
+  const keystoneTitle = document.createElement("div");
+  keystoneTitle.className = "rune-section-title";
+  keystoneTitle.textContent = "Keystone";
+  container.appendChild(keystoneTitle);
+
+  const keystoneRow = document.createElement("div");
+  keystoneRow.className = "rune-row";
+
+  const ksImg = document.createElement("img");
+  ksImg.className = "rune-icon";
+  ksImg.src = `${DD_IMG_BASE_GENERAL}/${keystone.icon}`;
+  ksImg.alt = keystone.name;
+
+  const ksName = document.createElement("span");
+  ksName.className = "rune-name";
+  ksName.textContent = keystone.name;
+
+  keystoneRow.appendChild(ksImg);
+  keystoneRow.appendChild(ksName);
+  container.appendChild(keystoneRow);
+
+  if (primaryRunes && primaryRunes.length > 0) {
+    const title = document.createElement("div");
+    title.className = "rune-section-title";
+    title.textContent = "Primary runes";
+    container.appendChild(title);
+
+    primaryRunes.forEach((r) => {
+      const row = document.createElement("div");
+      row.className = "rune-row";
+
+      const img = document.createElement("img");
+      img.className = "rune-icon";
+      img.src = `${DD_IMG_BASE_GENERAL}/${r.icon}`;
+      img.alt = r.name;
+
+      const nameEl = document.createElement("span");
+      nameEl.className = "rune-name";
+      nameEl.textContent = r.name;
+
+      row.appendChild(img);
+      row.appendChild(nameEl);
+      container.appendChild(row);
+    });
+  }
+
+  if (secondaryRunes && secondaryRunes.length > 0) {
+    const title = document.createElement("div");
+    title.className = "rune-section-title";
+    title.textContent = "Secondary runes";
+    container.appendChild(title);
+
+    secondaryRunes.forEach((r) => {
+      const row = document.createElement("div");
+      row.className = "rune-row";
+
+      const img = document.createElement("img");
+      img.className = "rune-icon";
+      img.src = `${DD_IMG_BASE_GENERAL}/${r.icon}`;
+      img.alt = r.name;
+
+      const nameEl = document.createElement("span");
+      nameEl.className = "rune-name";
+      nameEl.textContent = r.name;
+
+      row.appendChild(img);
+      row.appendChild(nameEl);
+      container.appendChild(row);
+    });
+  }
+}
+
+// ===== イベント関連 =====
 
 function setupLangButtons() {
   const buttons = document.querySelectorAll(".lang-btn");
@@ -176,8 +502,6 @@ function setupLangButtons() {
       const lang = btn.dataset.lang;
       if (!lang || lang === currentLang) return;
       loadLanguage(lang).then(() => {
-        // 言語を変えたら、Data Dragon もその言語で読み直すのが理想
-        // 今はシンプルに再ロードしておく
         loadDataDragonData();
       });
     });
@@ -191,7 +515,6 @@ function setupControls() {
   if (btnRandomChamp) {
     btnRandomChamp.addEventListener("click", () => {
       if (!championsData) {
-        // 初回ならデータロードしてから実行
         loadDataDragonData().then(pickRandomChampion);
       } else {
         pickRandomChampion();
@@ -212,7 +535,6 @@ function setupControls() {
   }
 }
 
-// ランダムチャンピオンを選ぶ（中身は仮）
 function pickRandomChampion() {
   if (!championsData) return;
   const select = document.getElementById("championSelect");
@@ -226,39 +548,49 @@ function pickRandomChampion() {
   const randomOpt = options[Math.floor(Math.random() * options.length)];
   select.value = randomOpt.value;
 
-  const resultEl = document.getElementById("resultChampion");
-  if (resultEl) {
-    resultEl.textContent = randomOpt.textContent || "";
-  }
+  const champ = getChampionById(randomOpt.value);
+  renderChampion(champ);
 }
 
-// ビルド生成のロジックはあとで本実装に差し替え
 function generateBuild() {
-  // TODO: フェーズ6で実装
-  const resultItems = document.getElementById("resultItems");
-  const resultRunes = document.getElementById("resultRunes");
-  const champEl = document.getElementById("resultChampion");
+  if (!championsData || !itemsData || !runesData) {
+    loadDataDragonData().then(() => generateBuild());
+    return;
+  }
 
-  if (champEl && !champEl.textContent) {
-    // チャンピオン未選択ならセレクトの表示名を反映
-    const select = document.getElementById("championSelect");
-    if (select) {
-      const selected = select.selectedOptions[0];
-      champEl.textContent = selected ? selected.textContent : "";
+  showStatus("msg_generating");
+
+  const champSelect = document.getElementById("championSelect");
+  let champId = champSelect ? champSelect.value : "";
+
+  if (!champId) {
+    showStatus("msg_no_champion");
+    const entries = getChampionEntries();
+    if (entries.length > 0) {
+      const randomChamp =
+        entries[Math.floor(Math.random() * entries.length)];
+      champId = randomChamp.id;
+      if (champSelect) {
+        champSelect.value = champId;
+      }
     }
   }
 
-  if (resultItems) {
-    resultItems.innerHTML = "";
-    const li = document.createElement("li");
-    li.textContent = "[TODO] build logic will show items here.";
-    resultItems.appendChild(li);
-  }
+  const champ = getChampionById(champId);
+  renderChampion(champ);
 
-  if (resultRunes) {
-    resultRunes.textContent =
-      "[TODO] build logic will show runes here.";
-  }
+  const buildTypeSelect = document.getElementById("buildTypeSelect");
+  const buildType = buildTypeSelect
+    ? buildTypeSelect.value || "random"
+    : "random";
+
+  const items = pickRandomItemsByBuildType(buildType);
+  renderItems(items);
+
+  const runePage = pickRandomRunesByBuildType(buildType);
+  renderRunes(runePage);
+
+  showStatus("msg_ready");
 }
 
 // ===== 初期化 =====
@@ -268,7 +600,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupLangButtons();
   setupControls();
 
-  // 言語ロード → Data Dragon ロードの順
   loadLanguage(currentLang).then(() => {
     loadDataDragonData();
   });

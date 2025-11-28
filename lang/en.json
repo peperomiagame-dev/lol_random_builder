@@ -18,6 +18,8 @@
   "msg_loading": "Loading game data...",
   "msg_ready": "Ready. Click Generate to roll a build.",
   "msg_error": "Something went wrong while loading data.",
+  "msg_generating": "Generating your random build...",
+  "msg_no_champion": "No champion selected. Picking one for you.",
   "footer_description": "Fun, non-meta random builds for League of Legends. Just for fun, not for ranked.",
   "btn_share": "Share (coming soon)",
   "ad_placeholder": "Ad space (coming soon)"

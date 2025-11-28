@@ -16,9 +16,11 @@
   "label_items": "アイテム",
   "label_runes": "ルーン",
   "msg_loading": "ゲームデータを読み込み中…",
-  "msg_ready": "準備OK。ビルドを振るには「ビルドを生成」を押してください。",
+  "msg_ready": "準備OK。「ビルドを生成」を押すとランダムビルドが出ます。",
   "msg_error": "データの読み込み中にエラーが発生しました。",
-  "footer_description": "ランク向けではない、遊び用のLoLビルドランダムビルダーです。",
+  "msg_generating": "ランダムビルドを生成中です…",
+  "msg_no_champion": "チャンピオンが未選択なので、ランダムで選びます。",
+  "footer_description": "ランク向けではなく、遊び用の LoL ビルドランダムビルダーです。",
   "btn_share": "シェア（準備中）",
   "ad_placeholder": "広告枠（あとで差し込み予定）"
 }
