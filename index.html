@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LoL Build Random Builder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1 class="app-title" data-i18n="app_title">LoL Build Random Builder</h1>
+      <nav class="lang-switcher" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="ja">日本語</button>
+        <button type="button" class="lang-btn" data-lang="ko">한국어</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <div class="container layout">
+      <!-- 左：コントロールエリア -->
+      <section class="panel controls-panel">
+        <h2 class="panel-title" data-i18n="section_controls">Controls</h2>
+
+        <div class="form-group">
+          <label for="championSelect" data-i18n="label_champion">Champion</label>
+          <select id="championSelect" class="select">
+            <option value="" data-i18n="champion_placeholder">
+              Select a champion
+            </option>
+          </select>
+          <button id="btnRandomChampion" class="btn secondary" data-i18n="btn_random_champion">
+            Random champion
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label for="buildTypeSelect" data-i18n="label_build_type">Build type</label>
+          <select id="buildTypeSelect" class="select">
+            <option value="ap" data-i18n="build_type_ap">AP</option>
+            <option value="ad" data-i18n="build_type_ad">AD</option>
+            <option value="tank" data-i18n="build_type_tank">Tank</option>
+            <option value="bruiser" data-i18n="build_type_bruiser">Bruiser</option>
+            <option value="random" data-i18n="build_type_random">Random</option>
+            <option value="chaos" data-i18n="build_type_chaos">Chaos</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <button id="btnGenerate" class="btn primary" data-i18n="btn_generate">
+            Generate build
+          </button>
+        </div>
+
+        <p id="statusText" class="status-text" data-i18n="msg_ready">
+          Ready. Click Generate to roll a build.
+        </p>
+      </section>
+
+      <!-- 右：結果表示エリア -->
+      <section class="panel result-panel">
+        <h2 class="panel-title" data-i18n="section_result">Result</h2>
+
+        <div class="result-block">
+          <h3 class="result-title" data-i18n="label_champion">Champion</h3>
+          <div id="resultChampion" class="result-body result-champion">
+            <!-- champion result goes here -->
+          </div>
+        </div>
+
+        <div class="result-block">
+          <h3 class="result-title" data-i18n="label_items">Items</h3>
+          <ul id="resultItems" class="result-body result-items">
+            <!-- items result goes here -->
+          </ul>
+        </div>
+
+        <div class="result-block">
+          <h3 class="result-title" data-i18n="label_runes">Runes</h3>
+          <div id="resultRunes" class="result-body result-runes">
+            <!-- runes result goes here -->
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p data-i18n="footer_description">
+        Fun, non-meta random builds for League of Legends. Just for fun, not for ranked.
+      </p>
+
+      <div class="footer-actions">
+        <button class="btn ghost" data-i18n="btn_share">
+          Share (coming soon)
+        </button>
+      </div>
+
+      <!-- 広告枠（あとから差し替え用） -->
+      <div class="ad-slot">
+        <span data-i18n="ad_placeholder">Ad space (coming soon)</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>
