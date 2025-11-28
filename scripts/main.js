@@ -1,6 +1,6 @@
 // ===== 設定値 =====
 
-// TODO: あとで最新バージョンに差し替え
+// Riot Data Dragon version
 const DD_VERSION = "15.23.1";
 
 // UI言語コード → Data Dragon ロケール
@@ -10,7 +10,7 @@ const DD_LOCALE_MAP = {
   ko: "ko_KR"
 };
 
-// Data Dragon 画像用
+// 画像用ベースURL
 const DD_IMG_BASE = `https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/img`;
 const DD_IMG_BASE_GENERAL = "https://ddragon.leagueoflegends.com/cdn/img";
 
@@ -24,6 +24,8 @@ let translations = {};
 let championsData = null;
 let itemsData = null;
 let runesData = null;
+
+let selectedChampionId = null;
 
 // ===== ユーティリティ =====
 
@@ -130,7 +132,7 @@ async function loadDataDragonData() {
     itemsData = itemJson;
     runesData = runeJson;
 
-    populateChampionSelect();
+    populateChampionUI();
     showStatus("msg_ready");
   } catch (err) {
     console.error("Failed to load Data Dragon data:", err);
@@ -148,38 +150,101 @@ function getChampionById(id) {
   return championsData.data[id] || null;
 }
 
-// チャンピオンセレクトの中身を更新
-function populateChampionSelect() {
+// ===== チャンピオン UI（グリッド＋選択） =====
+
+function updateChampionGridSelection(champId) {
+  const buttons = document.querySelectorAll(".champion-card-btn");
+  buttons.forEach((btn) => {
+    const isSelected = btn.dataset.champId === champId;
+    if (isSelected) {
+      btn.classList.add("is-selected");
+    } else {
+      btn.classList.remove("is-selected");
+    }
+  });
+}
+
+// 選択中チャンピオンをセット（結果側＋グリッドのハイライト）
+function selectChampion(champId) {
+  if (!champId || !championsData) return;
+
+  const champ = getChampionById(champId);
+  if (!champ) return;
+
+  selectedChampionId = champId;
+
+  const select = document.getElementById("championSelect");
+  if (select) {
+    select.value = champId;
+  }
+
+  renderChampion(champ);
+  updateChampionGridSelection(champId);
+}
+
+// チャンピオン一覧（セレクト＋画像グリッド）を作る
+function populateChampionUI() {
   if (!championsData) return;
 
   const select = document.getElementById("championSelect");
-  if (!select) return;
+  const grid = document.getElementById("championGrid");
+  const data = championsData.data || {};
+  const entries = Object.values(data).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
-  const placeholderValue = "";
-  const placeholder = document.createElement("option");
-  placeholder.value = placeholderValue;
-  placeholder.setAttribute("data-i18n", "champion_placeholder");
-  placeholder.textContent = t("champion_placeholder");
+  // 隠しセレクトの中身
+  if (select) {
+    select.innerHTML = "";
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.setAttribute("data-i18n", "champion_placeholder");
+    placeholder.textContent = t("champion_placeholder");
+    select.appendChild(placeholder);
 
-  select.innerHTML = "";
-  select.appendChild(placeholder);
-
-  const entries = getChampionEntries();
-
-  entries
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .forEach((champ) => {
+    entries.forEach((champ) => {
       const opt = document.createElement("option");
       opt.value = champ.id;
       opt.textContent = champ.name;
       select.appendChild(opt);
     });
+  }
 
-  // 再翻訳（placeholderテキスト）
+  // 画像＋名前グリッド
+  if (grid) {
+    grid.innerHTML = "";
+
+    entries.forEach((champ) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "champion-card-btn";
+      btn.dataset.champId = champ.id;
+
+      const img = document.createElement("img");
+      img.className = "champion-card-icon";
+      img.src = `${DD_IMG_BASE}/champion/${champ.image.full}`;
+      img.alt = champ.name;
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "champion-card-name";
+      nameEl.textContent = champ.name;
+
+      btn.appendChild(img);
+      btn.appendChild(nameEl);
+
+      btn.addEventListener("click", () => {
+        selectChampion(champ.id);
+      });
+
+      grid.appendChild(btn);
+    });
+  }
+
+  // placeholder の翻訳を再適用
   applyTranslations();
 }
 
-// ===== 結果描画（画像付き） =====
+// ===== 結果描画（右側パネル） =====
 
 function renderChampion(champ) {
   const container = document.getElementById("resultChampion");
@@ -203,6 +268,8 @@ function renderChampion(champ) {
   card.appendChild(nameEl);
   container.appendChild(card);
 }
+
+// ===== アイテム関連 =====
 
 function isItemAvailableOnSR(item) {
   if (!item.maps) return true;
@@ -297,9 +364,7 @@ function pickRandomItemsByBuildType(buildType) {
   const chosenBoots =
     boots.length > 0 ? pickRandomDistinct(boots, 1) : [];
 
-  const mainPool = pool.filter(
-    (item) => !isBoots(item)
-  );
+  const mainPool = pool.filter((item) => !isBoots(item));
   const mains = pickRandomDistinct(mainPool, 5);
 
   return [...chosenBoots, ...mains];
@@ -332,6 +397,8 @@ function renderItems(items) {
     list.appendChild(li);
   });
 }
+
+// ===== ルーン関連 =====
 
 function pickRandomRunesByBuildType(buildType) {
   if (!Array.isArray(runesData) || runesData.length === 0) return null;
@@ -397,7 +464,7 @@ function renderRunes(runePage) {
   const styleRow = document.createElement("div");
   styleRow.className = "rune-style-row";
 
-  function createStyleLabel(style, labelKey) {
+  function createStyleLabel(style, labelText) {
     const wrap = document.createElement("div");
     wrap.className = "rune-style-label";
 
@@ -410,14 +477,14 @@ function renderRunes(runePage) {
     }
 
     const text = document.createElement("span");
-    text.textContent = `${t(labelKey)}: ${style.name}`;
+    text.textContent = `${labelText}: ${style.name}`;
     wrap.appendChild(text);
 
     return wrap;
   }
 
-  styleRow.appendChild(createStyleLabel(primaryStyle, "label_runes_primary" in translations ? "label_runes_primary" : "Primary"));
-  styleRow.appendChild(createStyleLabel(secondaryStyle, "label_runes_secondary" in translations ? "label_runes_secondary" : "Secondary"));
+  styleRow.appendChild(createStyleLabel(primaryStyle, "Primary"));
+  styleRow.appendChild(createStyleLabel(secondaryStyle, "Secondary"));
 
   container.appendChild(styleRow);
 
@@ -537,19 +604,13 @@ function setupControls() {
 
 function pickRandomChampion() {
   if (!championsData) return;
-  const select = document.getElementById("championSelect");
-  if (!select) return;
 
-  const options = Array.from(select.querySelectorAll("option")).filter(
-    (opt) => opt.value !== ""
-  );
-  if (options.length === 0) return;
+  const entries = getChampionEntries();
+  if (entries.length === 0) return;
 
-  const randomOpt = options[Math.floor(Math.random() * options.length)];
-  select.value = randomOpt.value;
-
-  const champ = getChampionById(randomOpt.value);
-  renderChampion(champ);
+  const randomChamp =
+    entries[Math.floor(Math.random() * entries.length)];
+  selectChampion(randomChamp.id);
 }
 
 function generateBuild() {
@@ -560,24 +621,16 @@ function generateBuild() {
 
   showStatus("msg_generating");
 
-  const champSelect = document.getElementById("championSelect");
-  let champId = champSelect ? champSelect.value : "";
-
+  let champId = selectedChampionId;
   if (!champId) {
-    showStatus("msg_no_champion");
     const entries = getChampionEntries();
     if (entries.length > 0) {
       const randomChamp =
         entries[Math.floor(Math.random() * entries.length)];
       champId = randomChamp.id;
-      if (champSelect) {
-        champSelect.value = champId;
-      }
+      selectChampion(champId);
     }
   }
-
-  const champ = getChampionById(champId);
-  renderChampion(champ);
 
   const buildTypeSelect = document.getElementById("buildTypeSelect");
   const buildType = buildTypeSelect
