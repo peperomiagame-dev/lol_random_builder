@@ -67,7 +67,7 @@ body {
 .layout {
   display: grid;
   /* 左(コントロール) : 右(結果) = 3 : 2 くらい */
-  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr);
   gap: 16px;
 }
 
@@ -252,8 +252,8 @@ label {
 }
 /* アイテムだけちょっと大きくする */
 .item-icon {
-  width: 34px;
-  height: 34px;
+  width: 50px;
+  height: 50px;
 }
 
 .item-name,
