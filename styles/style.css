@@ -66,10 +66,11 @@ body {
 
 .layout {
   display: grid;
-  /* 左(コントロール)を広く、右(結果)を少し狭く */
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  /* 左(コントロール) をかなり広く、右(結果) を細く */
+  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
   gap: 16px;
 }
+
 
 @media (max-width: 800px) {
   .layout {
