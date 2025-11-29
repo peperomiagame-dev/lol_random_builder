@@ -17,6 +17,10 @@ const DD_IMG_BASE_GENERAL = "https://ddragon.leagueoflegends.com/cdn/img";
 // LocalStorage に保存するキー
 const STORAGE_LANG_KEY = "lol_rb_lang";
 
+// 標準ブーツ（ティア2）だけ許可するホワイトリスト
+// Ionian, Mercs, Swiftness, Berserker, Plated, Sorc, Mobility
+const STANDARD_BOOT_IDS = ["3117", "3111", "3009", "3006", "3047", "3020", "3111"];
+
 // ===== 状態管理 =====
 let currentLang = "en";
 let translations = {};
@@ -283,14 +287,15 @@ function isCompletedItem(item) {
   if (!isItemAvailableOnSR(item)) return false;
   if (item.inStore === false) return false;
 
+  // 購入不可
   if (item.gold && item.gold.purchasable === false) return false;
 
-  // まだ上位に合成できるならコンポーネント扱い
-  if (Array.isArray(item.into) && item.into.length > 0) return false;
+  // 消費アイテム（エリクサーなど）
+  if (item.consumed === true) return false;
 
   const tags = item.tags || [];
 
-  // 消耗品・トリンケット・ワード系は除外
+  // Consumable / Trinket / Vision 系は除外（念のため）
   if (
     tags.includes("Consumable") ||
     tags.includes("Trinket") ||
@@ -298,6 +303,9 @@ function isCompletedItem(item) {
   ) {
     return false;
   }
+
+  // まだ上位に合成できるならコンポーネント扱い
+  if (Array.isArray(item.into) && item.into.length > 0) return false;
 
   return true;
 }
@@ -322,14 +330,28 @@ function classifyItemPools(allItems) {
   const any = [];
 
   allItems.forEach((item) => {
+    const id = item.id;
+
+    // ブーツはホワイトリストだけ採用
+    if (isBoots(item)) {
+      if (!STANDARD_BOOT_IDS.includes(id)) {
+        return;
+      }
+      if (!isItemAvailableOnSR(item)) {
+        return;
+      }
+      if (item.inStore === false) {
+        return;
+      }
+      boots.push(item);
+      any.push(item);
+      return;
+    }
+
+    // ブーツ以外は「完成品」判定で絞る
     if (!isCompletedItem(item)) return;
 
     any.push(item);
-
-    if (isBoots(item)) {
-      boots.push(item);
-      return;
-    }
 
     const tags = item.tags || [];
     const hasAP = tags.includes("SpellDamage");
@@ -381,7 +403,7 @@ function pickRandomItemsByBuildType(buildType) {
       break;
   }
 
-  // 完成ブーツ 1個 + 完成品メイン 5個
+  // ブーツ1個（ホワイトリストから）＋メイン5個
   const chosenBoots =
     boots.length > 0 ? pickRandomDistinct(boots, 1) : [];
 
@@ -492,7 +514,10 @@ function renderRunes(runePage) {
 
   const primaryTitle = document.createElement("div");
   primaryTitle.className = "rune-col-title";
-  primaryTitle.textContent = `Primary: ${primaryStyle.name}`;
+  primaryTitle.innerHTML = `
+    <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${primaryStyle.icon}" alt="${primaryStyle.name}">
+    <span>Primary: ${primaryStyle.name}</span>
+  `;
   primaryCol.appendChild(primaryTitle);
 
   // Keystone
@@ -521,7 +546,10 @@ function renderRunes(runePage) {
 
   const secondaryTitle = document.createElement("div");
   secondaryTitle.className = "rune-col-title";
-  secondaryTitle.textContent = `Secondary: ${secondaryStyle.name}`;
+  secondaryTitle.innerHTML = `
+    <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${secondaryStyle.icon}" alt="${secondaryStyle.name}">
+    <span>Secondary: ${secondaryStyle.name}</span>
+  `;
   secondaryCol.appendChild(secondaryTitle);
 
   // 2つのセカンダリルーン
