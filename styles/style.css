@@ -66,10 +66,11 @@ body {
 
 .layout {
   display: grid;
-  /* 左(コントロール) をかなり広く、右(結果) を細く */
-  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
+  /* 左(コントロール) : 右(結果) = 3 : 2 くらい */
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
   gap: 16px;
 }
+
 
 @media (max-width: 800px) {
   .layout {
@@ -248,6 +249,11 @@ label {
   border-radius: 6px;
   object-fit: cover;
   border: 1px solid rgba(148, 163, 184, 0.6);
+}
+/* アイテムだけちょっと大きくする */
+.item-icon {
+  width: 34px;
+  height: 34px;
 }
 
 .item-name,
