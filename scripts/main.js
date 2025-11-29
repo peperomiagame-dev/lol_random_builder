@@ -18,8 +18,11 @@ const DD_IMG_BASE_GENERAL = "https://ddragon.leagueoflegends.com/cdn/img";
 const STORAGE_LANG_KEY = "lol_rb_lang";
 
 // 標準ブーツ（ティア2）だけ許可するホワイトリスト
-// Ionian, Mercs, Swiftness, Berserker, Plated, Sorc, Mobility
-const STANDARD_BOOT_IDS = ["3117", "3111", "3009", "3006", "3047", "3020", "3111"];
+// 3047: プレートスチールキャップ, 3006: バーサーカー,
+// 3009: スウィフトネス, 3020: ソーサラー,
+// 3111: マーキュリー, 3117: ムービング,
+// 3158: イオニア
+const STANDARD_BOOT_IDS = ["3047", "3006", "3009", "3020", "3111", "3117", "3158"];
 
 // ===== 状態管理 =====
 let currentLang = "en";
@@ -295,7 +298,7 @@ function isCompletedItem(item) {
 
   const tags = item.tags || [];
 
-  // Consumable / Trinket / Vision 系は除外（念のため）
+  // Consumable / Trinket / Vision 系は念のため除外
   if (
     tags.includes("Consumable") ||
     tags.includes("Trinket") ||
@@ -332,7 +335,7 @@ function classifyItemPools(allItems) {
   allItems.forEach((item) => {
     const id = item.id;
 
-    // ブーツはホワイトリストだけ採用
+    // ブーツはホワイトリストだけ採用（ティア2）
     if (isBoots(item)) {
       if (!STANDARD_BOOT_IDS.includes(id)) {
         return;
@@ -403,7 +406,7 @@ function pickRandomItemsByBuildType(buildType) {
       break;
   }
 
-  // ブーツ1個（ホワイトリストから）＋メイン5個
+  // ブーツ1個（ホワイトリスト）＋メイン5個
   const chosenBoots =
     boots.length > 0 ? pickRandomDistinct(boots, 1) : [];
 
@@ -504,23 +507,36 @@ function renderRunes(runePage) {
     secondaryRunes
   } = runePage;
 
-  // 全体を2列グリッドにする
+  // ==== 1. スタイル（栄華 / 覇道など）のアイコン行 ====
+  const styleRow = document.createElement("div");
+  styleRow.className = "rune-style-row";
+
+  const primaryLabel = document.createElement("div");
+  primaryLabel.className = "rune-style-label";
+  primaryLabel.innerHTML = `
+    <img class="rune-style-icon" src="${DD_IMG_BASE_GENERAL}/${primaryStyle.icon}" alt="${primaryStyle.name}">
+    <span>Primary: ${primaryStyle.name}</span>
+  `;
+
+  const secondaryLabel = document.createElement("div");
+  secondaryLabel.className = "rune-style-label";
+  secondaryLabel.innerHTML = `
+    <img class="rune-style-icon" src="${DD_IMG_BASE_GENERAL}/${secondaryStyle.icon}" alt="${secondaryStyle.name}">
+    <span>Secondary: ${secondaryStyle.name}</span>
+  `;
+
+  styleRow.appendChild(primaryLabel);
+  styleRow.appendChild(secondaryLabel);
+  container.appendChild(styleRow);
+
+  // ==== 2. メイン/サブを1列ずつに並べる ====
   const wrapper = document.createElement("div");
   wrapper.className = "runes-two-col";
 
-  /* ===== Primary Column ===== */
+  // Primary column (Keystone + Primary runes)
   const primaryCol = document.createElement("div");
   primaryCol.className = "rune-col";
 
-  const primaryTitle = document.createElement("div");
-  primaryTitle.className = "rune-col-title";
-  primaryTitle.innerHTML = `
-    <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${primaryStyle.icon}" alt="${primaryStyle.name}">
-    <span>Primary: ${primaryStyle.name}</span>
-  `;
-  primaryCol.appendChild(primaryTitle);
-
-  // Keystone
   const keystoneRow = document.createElement("div");
   keystoneRow.className = "rune-row";
   keystoneRow.innerHTML = `
@@ -529,7 +545,6 @@ function renderRunes(runePage) {
   `;
   primaryCol.appendChild(keystoneRow);
 
-  // Primary choice runes
   primaryRunes.forEach((r) => {
     const row = document.createElement("div");
     row.className = "rune-row";
@@ -540,19 +555,10 @@ function renderRunes(runePage) {
     primaryCol.appendChild(row);
   });
 
-  /* ===== Secondary Column ===== */
+  // Secondary column (Secondary runes 2つ)
   const secondaryCol = document.createElement("div");
   secondaryCol.className = "rune-col";
 
-  const secondaryTitle = document.createElement("div");
-  secondaryTitle.className = "rune-col-title";
-  secondaryTitle.innerHTML = `
-    <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${secondaryStyle.icon}" alt="${secondaryStyle.name}">
-    <span>Secondary: ${secondaryStyle.name}</span>
-  `;
-  secondaryCol.appendChild(secondaryTitle);
-
-  // 2つのセカンダリルーン
   secondaryRunes.forEach((r) => {
     const row = document.createElement("div");
     row.className = "rune-row";
