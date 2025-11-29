@@ -18,11 +18,71 @@ const DD_IMG_BASE_GENERAL = "https://ddragon.leagueoflegends.com/cdn/img";
 const STORAGE_LANG_KEY = "lol_rb_lang";
 
 // 標準ブーツ（ティア2）だけ許可するホワイトリスト
-// 3047: プレートスチールキャップ, 3006: バーサーカー,
-// 3009: スウィフトネス, 3020: ソーサラー,
-// 3111: マーキュリー, 3117: ムービング,
-// 3158: イオニア
 const STANDARD_BOOT_IDS = ["3047", "3006", "3009", "3020", "3111", "3117", "3158"];
+
+// ステータスシャード（固定テーブル）
+const STAT_SHARDS = {
+  offense: [
+    {
+      id: 5008,
+      icon: "perkShard/5008.png",
+      i18nKey: "shard_offense_adaptive",
+      defaultName: "Adaptive Force"
+    },
+    {
+      id: 5005,
+      icon: "perkShard/5005.png",
+      i18nKey: "shard_offense_attack_speed",
+      defaultName: "Attack Speed"
+    },
+    {
+      id: 5007,
+      icon: "perkShard/5007.png",
+      i18nKey: "shard_offense_ability_haste",
+      defaultName: "Ability Haste"
+    }
+  ],
+  flex: [
+    {
+      id: 5008,
+      icon: "perkShard/5008.png",
+      i18nKey: "shard_flex_adaptive",
+      defaultName: "Adaptive Force"
+    },
+    {
+      id: 5010,
+      icon: "perkShard/5010.png",
+      i18nKey: "shard_flex_move_speed",
+      defaultName: "Move Speed"
+    },
+    {
+      id: 5001,
+      icon: "perkShard/5001.png",
+      i18nKey: "shard_flex_health_scaling",
+      defaultName: "Health Scaling"
+    }
+  ],
+  defense: [
+    {
+      id: 5011,
+      icon: "perkShard/5011.png",
+      i18nKey: "shard_defense_health",
+      defaultName: "Health"
+    },
+    {
+      id: 5013,
+      icon: "perkShard/5013.png",
+      i18nKey: "shard_defense_tenacity",
+      defaultName: "Tenacity and Slow Resist"
+    },
+    {
+      id: 5001,
+      icon: "perkShard/5001.png",
+      i18nKey: "shard_defense_health_scaling",
+      defaultName: "Health Scaling"
+    }
+  ]
+};
 
 // ===== 状態管理 =====
 let currentLang = "en";
@@ -73,9 +133,7 @@ function t(key) {
 function applyTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
-    if (!key) {
-      return;
-    }
+    if (!key) return;
     el.textContent = t(key);
   });
 }
@@ -84,6 +142,12 @@ function showStatus(key) {
   const el = document.getElementById("statusText");
   if (!el) return;
   el.textContent = t(key);
+}
+
+function pickRandomFrom(list) {
+  if (!Array.isArray(list) || list.length === 0) return null;
+  const idx = Math.floor(Math.random() * list.length);
+  return list[idx];
 }
 
 // ===== 言語ロード =====
@@ -157,7 +221,7 @@ function getChampionById(id) {
   return championsData.data[id] || null;
 }
 
-// ===== チャンピオン UI（グリッド＋選択） =====
+// ===== チャンピオン UI =====
 
 function updateChampionGridSelection(champId) {
   const buttons = document.querySelectorAll(".champion-card-btn");
@@ -194,7 +258,6 @@ function renderChampionResult(champ) {
   container.appendChild(card);
 }
 
-// 選択中チャンピオンをセット
 function selectChampion(champId) {
   if (!champId || !championsData) return;
 
@@ -212,7 +275,6 @@ function selectChampion(champId) {
   updateChampionGridSelection(champId);
 }
 
-// セレクトと画像グリッドを構築
 function populateChampionUI() {
   if (!championsData) return;
 
@@ -223,7 +285,7 @@ function populateChampionUI() {
     a.name.localeCompare(b.name)
   );
 
-  // 隠しセレクト
+  // 隠しセレクト（フォーム上にはほぼ出さない）
   if (select) {
     select.innerHTML = "";
     const placeholder = document.createElement("option");
@@ -270,7 +332,6 @@ function populateChampionUI() {
     });
   }
 
-  // placeholder の翻訳再適用
   applyTranslations();
 }
 
@@ -285,20 +346,16 @@ function isBoots(item) {
   return Array.isArray(item.tags) && item.tags.includes("Boots");
 }
 
-// 完成品かどうかの判定
 function isCompletedItem(item) {
   if (!isItemAvailableOnSR(item)) return false;
   if (item.inStore === false) return false;
 
-  // 購入不可
   if (item.gold && item.gold.purchasable === false) return false;
 
-  // 消費アイテム（エリクサーなど）
+  // 消費アイテム（エリクサーなど）は除外
   if (item.consumed === true) return false;
 
   const tags = item.tags || [];
-
-  // Consumable / Trinket / Vision 系は念のため除外
   if (
     tags.includes("Consumable") ||
     tags.includes("Trinket") ||
@@ -307,7 +364,7 @@ function isCompletedItem(item) {
     return false;
   }
 
-  // まだ上位に合成できるならコンポーネント扱い
+  // 上位に合成できるなら素材扱い
   if (Array.isArray(item.into) && item.into.length > 0) return false;
 
   return true;
@@ -335,23 +392,18 @@ function classifyItemPools(allItems) {
   allItems.forEach((item) => {
     const id = item.id;
 
-    // ブーツはホワイトリストだけ採用（ティア2）
+    // ブーツ（ティア2だけ）
     if (isBoots(item)) {
-      if (!STANDARD_BOOT_IDS.includes(id)) {
-        return;
-      }
-      if (!isItemAvailableOnSR(item)) {
-        return;
-      }
-      if (item.inStore === false) {
-        return;
-      }
+      if (!STANDARD_BOOT_IDS.includes(id)) return;
+      if (!isItemAvailableOnSR(item)) return;
+      if (item.inStore === false) return;
+
       boots.push(item);
       any.push(item);
       return;
     }
 
-    // ブーツ以外は「完成品」判定で絞る
+    // それ以外は完成品だけ採用
     if (!isCompletedItem(item)) return;
 
     any.push(item);
@@ -406,7 +458,6 @@ function pickRandomItemsByBuildType(buildType) {
       break;
   }
 
-  // ブーツ1個（ホワイトリスト）＋メイン5個
   const chosenBoots =
     boots.length > 0 ? pickRandomDistinct(boots, 1) : [];
 
@@ -444,15 +495,14 @@ function renderItems(items) {
   });
 }
 
-// ===== ルーン関連 =====
+// ===== ルーン関連（メイン / サブ + シャード） =====
 
 function pickRandomRunesByBuildType(buildType) {
   if (!Array.isArray(runesData) || runesData.length === 0) return null;
 
   const styles = runesData.slice();
 
-  const primaryStyle = styles[Math.floor(Math.random() * styles.length)];
-
+  const primaryStyle = pickRandomFrom(styles);
   const keystoneSlot = primaryStyle.slots[0];
   const keystone =
     keystoneSlot.runes[
@@ -473,10 +523,7 @@ function pickRandomRunesByBuildType(buildType) {
   const secondaryCandidates = styles.filter(
     (s) => s.id !== primaryStyle.id
   );
-  const secondaryStyle =
-    secondaryCandidates[
-      Math.floor(Math.random() * secondaryCandidates.length)
-    ];
+  const secondaryStyle = pickRandomFrom(secondaryCandidates);
 
   const secondaryRunes = [];
   const secondarySlots = secondaryStyle.slots.slice(1);
@@ -484,12 +531,20 @@ function pickRandomRunesByBuildType(buildType) {
   const secPicked = pickRandomDistinct(flatSecondary, 2);
   secPicked.forEach((r) => secondaryRunes.push(r));
 
+  // ステータスシャード（攻撃 / 柔軟 / 防御）
+  const offenseShard = pickRandomFrom(STAT_SHARDS.offense);
+  const flexShard = pickRandomFrom(STAT_SHARDS.flex);
+  const defenseShard = pickRandomFrom(STAT_SHARDS.defense);
+
   return {
     primaryStyle,
     secondaryStyle,
     keystone,
     primaryRunes,
-    secondaryRunes
+    secondaryRunes,
+    offenseShard,
+    flexShard,
+    defenseShard
   };
 }
 
@@ -504,10 +559,13 @@ function renderRunes(runePage) {
     secondaryStyle,
     keystone,
     primaryRunes,
-    secondaryRunes
+    secondaryRunes,
+    offenseShard,
+    flexShard,
+    defenseShard
   } = runePage;
 
-  // ==== 1. スタイル（栄華 / 覇道など）のアイコン行 ====
+  // === スタイル（栄華 / 覇道 など）のアイコン行 ===
   const styleRow = document.createElement("div");
   styleRow.className = "rune-style-row";
 
@@ -529,11 +587,11 @@ function renderRunes(runePage) {
   styleRow.appendChild(secondaryLabel);
   container.appendChild(styleRow);
 
-  // ==== 2. メイン/サブを1列ずつに並べる ====
+  // === メイン / サブルーンを2列レイアウト ===
   const wrapper = document.createElement("div");
   wrapper.className = "runes-two-col";
 
-  // Primary column (Keystone + Primary runes)
+  // Primary column
   const primaryCol = document.createElement("div");
   primaryCol.className = "rune-col";
 
@@ -555,7 +613,7 @@ function renderRunes(runePage) {
     primaryCol.appendChild(row);
   });
 
-  // Secondary column (Secondary runes 2つ)
+  // Secondary column
   const secondaryCol = document.createElement("div");
   secondaryCol.className = "rune-col";
 
@@ -571,8 +629,43 @@ function renderRunes(runePage) {
 
   wrapper.appendChild(primaryCol);
   wrapper.appendChild(secondaryCol);
-
   container.appendChild(wrapper);
+
+  // === シャード（攻撃 / 柔軟 / 防御） ===
+  const shardsRow = document.createElement("div");
+  shardsRow.className = "rune-shards-row";
+
+  function createShardElement(shard) {
+    if (!shard) return null;
+    const shardDiv = document.createElement("div");
+    shardDiv.className = "rune-shard";
+
+    const icon = document.createElement("img");
+    icon.className = "rune-icon";
+    icon.src = `${DD_IMG_BASE_GENERAL}/${shard.icon}`;
+    icon.alt = shard.defaultName;
+
+    const label = document.createElement("span");
+    const localized =
+      shard.i18nKey && translations[shard.i18nKey]
+        ? translations[shard.i18nKey]
+        : shard.defaultName;
+    label.textContent = localized;
+
+    shardDiv.appendChild(icon);
+    shardDiv.appendChild(label);
+    return shardDiv;
+  }
+
+  const offenseEl = createShardElement(offenseShard);
+  const flexEl = createShardElement(flexShard);
+  const defenseEl = createShardElement(defenseShard);
+
+  if (offenseEl) shardsRow.appendChild(offenseEl);
+  if (flexEl) shardsRow.appendChild(flexEl);
+  if (defenseEl) shardsRow.appendChild(defenseEl);
+
+  container.appendChild(shardsRow);
 }
 
 // ===== イベント関連 =====

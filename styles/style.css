@@ -64,15 +64,14 @@ body {
   padding: 24px 0 32px;
 }
 
+/* 左：コントロール(細め) / 右：結果ドーン(太め) */
 .layout {
   display: grid;
-  /* 左(コントロール) : 右(結果) = 3 : 2 くらい */
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.8fr);
   gap: 16px;
 }
 
-
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -250,10 +249,11 @@ label {
   object-fit: cover;
   border: 1px solid rgba(148, 163, 184, 0.6);
 }
-/* アイテムだけちょっと大きくする */
+
+/* アイテムだけ少し大きめに */
 .item-icon {
-  width: 50px;
-  height: 50px;
+  width: 34px;
+  height: 34px;
 }
 
 .item-name,
@@ -263,6 +263,7 @@ label {
   white-space: nowrap;
 }
 
+/* Rune style labels (栄華 / 覇道など) */
 .rune-style-row {
   display: flex;
   flex-wrap: wrap;
@@ -277,18 +278,11 @@ label {
   gap: 6px;
 }
 
-.rune-section-title {
-  margin-top: 4px;
-  font-size: 0.8rem;
-  color: #9ca3af;
-}
-
 /* === チャンピオン一覧（画像＋名前のカード） === */
 
 .champion-grid {
   margin-top: 6px;
   display: grid;
-  /* PC では 6 列固定イメージ */
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
   max-height: 320px;
@@ -296,7 +290,6 @@ label {
   padding: 4px 2px;
 }
 
-/* 幅が狭いときは列数を減らす */
 @media (max-width: 900px) {
   .champion-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -353,7 +346,7 @@ label {
   color: #f9fafb;
 }
 
-/* === ルーン：メイン・サブを2列レイアウト === */
+/* === ルーン：メイン・サブ2列 === */
 
 .runes-two-col {
   display: grid;
@@ -381,17 +374,25 @@ label {
   height: 24px;
 }
 
+/* === シャード表示 === */
 
-.rune-row {
+.rune-shards-row {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(148, 163, 184, 0.35);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 0.8rem;
+}
+
+.rune-shard {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
 }
 
-.rune-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  object-fit: cover;
+.rune-shard .rune-icon {
+  width: 24px;
+  height: 24px;
 }
