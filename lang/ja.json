@@ -1,26 +1,46 @@
 {
   "app_title": "LoL ビルドランダムビルダー",
-  "section_controls": "コントロール",
-  "section_result": "結果",
+  "controls_title": "コントロール",
+  "result_title": "結果",
+
   "label_champion": "チャンピオン",
   "label_build_type": "ビルドタイプ",
-  "champion_placeholder": "チャンピオンを選択してください",
+
+  "btn_open_champion_picker": "チャンピオンを選択",
   "btn_random_champion": "チャンピオンをランダム",
   "btn_generate": "ビルドを生成",
+
+  "champion_placeholder": "チャンピオンを選択",
+
   "build_type_ap": "AP（アビリティパワー）",
-  "build_type_ad": "AD（アタックダメージ）",
+  "build_type_ad": "AD（物理攻撃）",
   "build_type_tank": "タンク",
-  "build_type_bruiser": "ファイター",
+  "build_type_bruiser": "ブルーザー",
   "build_type_random": "ランダム",
   "build_type_chaos": "カオス",
-  "label_items": "アイテム",
-  "label_runes": "ルーン",
-  "msg_loading": "ゲームデータを読み込み中…",
+
+  "result_champion": "チャンピオン",
+  "result_items": "アイテム",
+  "result_runes": "ルーン",
+
   "msg_ready": "準備OK。「ビルドを生成」を押すとランダムビルドが出ます。",
-  "msg_error": "データの読み込み中にエラーが発生しました。",
-  "msg_generating": "ランダムビルドを生成中です…",
-  "msg_no_champion": "チャンピオンが未選択なので、ランダムで選びます。",
+  "msg_loading": "データを読み込み中…",
+  "msg_generating": "ビルドを生成中…",
+  "msg_error": "データの読み込みに失敗しました。時間をおいて再度お試しください。",
+
   "footer_description": "ランク向けではなく、遊び用の LoL ビルドランダムビルダーです。",
-  "btn_share": "シェア（準備中）",
-  "ad_placeholder": "広告枠（あとで差し込み予定）"
+  "btn_share_coming_soon": "シェア（準備中）",
+  "ad_slot_placeholder": "広告枠（あとで差し込み予定）",
+
+  "modal_champion_title": "チャンピオンを選択",
+
+  "shard_offense_adaptive": "攻撃：アダプティブフォース",
+  "shard_offense_attack_speed": "攻撃：攻撃速度",
+  "shard_offense_ability_haste": "攻撃：スキルヘイスト",
+  "shard_flex_adaptive": "柔軟：アダプティブフォース",
+  "shard_flex_move_speed": "柔軟：移動速度",
+  "shard_flex_health": "柔軟：体力",
+  "shard_defense_health": "防御：体力",
+  "shard_defense_tenacity": "防御：回復力と行動妨害耐性",
+  "shard_defense_health_scaling": "防御：体力（成長）"
 }

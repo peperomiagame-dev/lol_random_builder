@@ -266,24 +266,6 @@ function renderChampionResult(champ) {
   container.appendChild(card);
 }
 
-function renderChampionMini(champ) {
-  const mini = document.getElementById("currentChampionMini");
-  if (!mini) return;
-  mini.innerHTML = "";
-  if (!champ) return;
-
-  const img = document.createElement("img");
-  img.className = "champion-icon";
-  img.alt = champ.name;
-  img.src = `${DD_IMG_BASE}/champion/${champ.image.full}`;
-
-  const nameEl = document.createElement("span");
-  nameEl.textContent = champ.name;
-
-  mini.appendChild(img);
-  mini.appendChild(nameEl);
-}
-
 function selectChampion(champId, options) {
   if (!champId || !championsData) return;
 
@@ -298,7 +280,6 @@ function selectChampion(champId, options) {
   }
 
   renderChampionResult(champ);
-  renderChampionMini(champ);
   updateChampionGridSelection(champId);
 
   if (options && options.closeModal) {

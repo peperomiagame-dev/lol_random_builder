@@ -24,7 +24,7 @@
     <!-- メイン -->
     <main class="site-main">
       <div class="container main-stack">
-        <!-- ===== コントロール（上） ===== -->
+        <!-- ===== コントロール（上・コンパクト） ===== -->
         <section class="panel panel-controls">
           <h2 class="panel-title" data-i18n="controls_title">コントロール</h2>
 
@@ -46,24 +46,19 @@
                 class="btn ghost"
                 data-i18n="btn_random_champion"
               >
-                ランダム
+                チャンピオンをランダム
               </button>
-            </div>
-            <!-- 現在の選択チャンピオン（ミニ表示） -->
-            <div id="currentChampionMini" class="current-champion-mini">
-              <!-- JS で埋める -->
             </div>
           </div>
 
-          <!-- ビルドタイプ -->
-          <div class="form-group">
-            <label data-i18n="label_build_type">ビルドタイプ</label>
+          <!-- ビルドタイプ（ラベル無しでセレクトだけ） -->
+          <div class="form-group form-group-buildtype">
             <select id="buildTypeSelect" class="select">
               <option value="ap" data-i18n="build_type_ap">
-                AP (アビリティパワー)
+                AP（アビリティパワー）
               </option>
               <option value="ad" data-i18n="build_type_ad">
-                AD (物理攻撃)
+                AD（物理攻撃）
               </option>
               <option value="tank" data-i18n="build_type_tank">
                 タンク
@@ -98,38 +93,44 @@
             class="status-text"
             data-i18n="msg_ready"
           >
-            準備OK。ビルドを生成を押すとランダムビルドが出ます。
+            準備OK。「ビルドを生成」を押すとランダムビルドが出ます。
           </div>
         </section>
 
-        <!-- ===== 結果（下・どーん） ===== -->
+        <!-- ===== 結果（下・チャンプ縦長＋右にビルド） ===== -->
         <section class="panel panel-result">
           <h2 class="panel-title" data-i18n="result_title">結果</h2>
 
-          <!-- チャンピオン -->
-          <div class="result-block">
-            <h3 class="result-title" data-i18n="result_champion">
-              チャンピオン
-            </h3>
-            <div class="result-body result-champion-body" id="resultChampion"></div>
-          </div>
-
-          <!-- アイテム（1列表示） -->
-          <div class="result-block">
-            <h3 class="result-title" data-i18n="result_items">
-              アイテム
-            </h3>
-            <div class="result-body">
-              <ul id="resultItems" class="result-items"></ul>
+          <div class="result-main-grid">
+            <!-- 左：チャンピオン縦長 -->
+            <div class="result-left">
+              <h3 class="result-title" data-i18n="result_champion">
+                チャンピオン
+              </h3>
+              <div
+                class="result-body result-champion-body"
+                id="resultChampion"
+              ></div>
             </div>
-          </div>
 
-          <!-- ルーン＋シャード -->
-          <div class="result-block">
-            <h3 class="result-title" data-i18n="result_runes">
-              ルーン
-            </h3>
-            <div class="result-body" id="resultRunes"></div>
+            <!-- 右：アイテム＋ルーンを縦に積む -->
+            <div class="result-right">
+              <div class="result-block">
+                <h3 class="result-title" data-i18n="result_items">
+                  アイテム
+                </h3>
+                <div class="result-body">
+                  <ul id="resultItems" class="result-items"></ul>
+                </div>
+              </div>
+
+              <div class="result-block">
+                <h3 class="result-title" data-i18n="result_runes">
+                  ルーン
+                </h3>
+                <div class="result-body" id="resultRunes"></div>
+              </div>
+            </div>
           </div>
         </section>
 

@@ -72,7 +72,7 @@ body {
 .main-stack {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* ちょっとだけ余白 */
+  gap: 12px;
 }
 
 /* ===== パネル共通 ===== */
@@ -117,6 +117,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.form-group-buildtype {
+  max-width: 320px;
 }
 
 label {
@@ -191,25 +195,28 @@ label {
   gap: 8px;
 }
 
-.current-champion-mini {
-  margin-top: 4px;
-  min-height: 36px;
+/* ===== 結果レイアウト（左：チャンプ縦長、右：ビルド） ===== */
+
+.result-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .result-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.result-left,
+.result-right {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: #e5e7eb;
+  flex-direction: column;
 }
-
-.current-champion-mini .champion-icon {
-  width: 32px;
-  height: 32px;
-}
-
-/* ===== 結果表示 ===== */
 
 .result-block {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .result-title {
@@ -227,20 +234,12 @@ label {
   font-size: 0.9rem;
 }
 
-/* チャンピオン結果は少し高さを確保して目立たせる */
+/* チャンプ枠は縦長にして目立たせる */
 .result-champion-body {
-  min-height: 64px;
-}
-
-.result-items {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-/* アイテムは1列表示、行間少し */
-.result-items li + li {
-  margin-top: 4px;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ===== フッター ===== */
@@ -278,21 +277,34 @@ label {
 
 .champion-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
 }
 
 .champion-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
+  width: 96px;
+  height: 96px;
+  border-radius: 16px;
   object-fit: cover;
   border: 1px solid rgba(148, 163, 184, 0.5);
 }
 
 .champion-name {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
+}
+
+/* アイテム・ルーン */
+
+.result-items {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.result-items li + li {
+  margin-top: 4px;
 }
 
 .item-row,
