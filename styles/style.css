@@ -72,7 +72,7 @@ body {
 }
 
 
-@media (max-width: 800px) {
+@media (max-width: 100px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);
   }
