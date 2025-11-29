@@ -71,7 +71,6 @@ body {
   gap: 16px;
 }
 
-
 @media (max-width: 800px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);
@@ -345,7 +344,7 @@ label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #f9fafb; /* ← チャンプ名を白に */
+  color: #f9fafb;
 }
 
 /* === ルーン：メイン・サブを2列レイアウト === */
@@ -365,15 +364,19 @@ label {
 .rune-col-title {
   font-weight: bold;
   margin-bottom: 4px;
+  font-size: 0.85rem;
 }
 
 .rune-row {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-size: 0.85rem;
 }
 
 .rune-icon {
   width: 28px;
   height: 28px;
+  border-radius: 999px;
+  object-fit: cover;
 }

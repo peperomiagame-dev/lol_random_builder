@@ -278,6 +278,30 @@ function isBoots(item) {
   return Array.isArray(item.tags) && item.tags.includes("Boots");
 }
 
+// 完成品かどうかの判定
+function isCompletedItem(item) {
+  if (!isItemAvailableOnSR(item)) return false;
+  if (item.inStore === false) return false;
+
+  if (item.gold && item.gold.purchasable === false) return false;
+
+  // まだ上位に合成できるならコンポーネント扱い
+  if (Array.isArray(item.into) && item.into.length > 0) return false;
+
+  const tags = item.tags || [];
+
+  // 消耗品・トリンケット・ワード系は除外
+  if (
+    tags.includes("Consumable") ||
+    tags.includes("Trinket") ||
+    tags.includes("Vision")
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 function pickRandomDistinct(list, count) {
   const copy = list.slice();
   const result = [];
@@ -298,8 +322,7 @@ function classifyItemPools(allItems) {
   const any = [];
 
   allItems.forEach((item) => {
-    if (!isItemAvailableOnSR(item)) return;
-    if (item.inStore === false) return;
+    if (!isCompletedItem(item)) return;
 
     any.push(item);
 
@@ -347,18 +370,18 @@ function pickRandomItemsByBuildType(buildType) {
     case "bruiser":
       pool = bruiser.length > 0 ? bruiser : any;
       break;
-    case "random":
-      {
-        const types = ["ap", "ad", "tank", "bruiser"];
-        const picked = types[Math.floor(Math.random() * types.length)];
-        return pickRandomItemsByBuildType(picked);
-      }
+    case "random": {
+      const types = ["ap", "ad", "tank", "bruiser"];
+      const picked = types[Math.floor(Math.random() * types.length)];
+      return pickRandomItemsByBuildType(picked);
+    }
     case "chaos":
     default:
       pool = any;
       break;
   }
 
+  // 完成ブーツ 1個 + 完成品メイン 5個
   const chosenBoots =
     boots.length > 0 ? pickRandomDistinct(boots, 1) : [];
 
@@ -517,7 +540,6 @@ function renderRunes(runePage) {
 
   container.appendChild(wrapper);
 }
-
 
 // ===== イベント関連 =====
 
