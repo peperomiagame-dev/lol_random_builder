@@ -72,7 +72,7 @@ body {
 .main-stack {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px; /* ちょっとだけ余白 */
 }
 
 /* ===== パネル共通 ===== */
@@ -85,9 +85,18 @@ body {
   box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
 }
 
-/* コントロールパネルは高さ控えめ */
+/* --- コントロールは帯っぽくコンパクトにする --- */
 .panel-controls {
-  padding-bottom: 14px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 4px 0 0;
+}
+
+.panel-controls .panel-title {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  color: #9ca3af;
 }
 
 /* 結果パネルは余白多め＝「どーん」感 */
@@ -104,7 +113,7 @@ body {
 }
 
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -169,7 +178,7 @@ label {
 }
 
 .status-text {
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 0.8rem;
   color: #9ca3af;
   min-height: 1.2em;
@@ -183,8 +192,8 @@ label {
 }
 
 .current-champion-mini {
-  margin-top: 6px;
-  min-height: 40px;
+  margin-top: 4px;
+  min-height: 36px;
   display: flex;
   align-items: center;
   gap: 8px;
