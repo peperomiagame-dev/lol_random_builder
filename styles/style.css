@@ -66,7 +66,8 @@ body {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+  /* 左(コントロール)を広く、右(結果)を少し狭く */
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -276,28 +277,41 @@ label {
   color: #9ca3af;
 }
 
-/* === チャンピオン一覧グリッド（画像＋名前） === */
 /* === チャンピオン一覧（画像＋名前のカード） === */
 
 .champion-grid {
   margin-top: 6px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 8px;
+  /* PC では 6 列固定イメージ */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
   max-height: 320px;
   overflow-y: auto;
   padding: 4px 2px;
 }
 
+/* 幅が狭いときは列数を減らす */
+@media (max-width: 900px) {
+  .champion-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .champion-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .champion-card-btn {
   border: 1px solid rgba(148, 163, 184, 0.35);
   background: rgba(15, 23, 42, 0.92);
-  border-radius: 12px;
-  padding: 6px 4px 8px;
+  border-radius: 10px;
+  padding: 4px 2px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   cursor: pointer;
   transition:
     border-color 0.12s ease,
@@ -317,17 +331,18 @@ label {
 }
 
 .champion-card-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
   object-fit: cover;
   border: 1px solid rgba(148, 163, 184, 0.7);
 }
 
 .champion-card-name {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #f9fafb; /* ← チャンプ名を白に */
 }
