@@ -459,104 +459,65 @@ function renderRunes(runePage) {
     secondaryRunes
   } = runePage;
 
-  const styleRow = document.createElement("div");
-  styleRow.className = "rune-style-row";
+  // 全体を2列グリッドにする
+  const wrapper = document.createElement("div");
+  wrapper.className = "runes-two-col";
 
-  function createStyleLabel(style, labelText) {
-    const wrap = document.createElement("div");
-    wrap.className = "rune-style-label";
+  /* ===== Primary Column ===== */
+  const primaryCol = document.createElement("div");
+  primaryCol.className = "rune-col";
 
-    if (style.icon) {
-      const img = document.createElement("img");
-      img.className = "rune-style-icon";
-      img.src = `${DD_IMG_BASE_GENERAL}/${style.icon}`;
-      img.alt = style.name;
-      wrap.appendChild(img);
-    }
+  const primaryTitle = document.createElement("div");
+  primaryTitle.className = "rune-col-title";
+  primaryTitle.textContent = `Primary: ${primaryStyle.name}`;
+  primaryCol.appendChild(primaryTitle);
 
-    const text = document.createElement("span");
-    text.textContent = `${labelText}: ${style.name}`;
-    wrap.appendChild(text);
-
-    return wrap;
-  }
-
-  styleRow.appendChild(createStyleLabel(primaryStyle, "Primary"));
-  styleRow.appendChild(createStyleLabel(secondaryStyle, "Secondary"));
-
-  container.appendChild(styleRow);
-
-  const keystoneTitle = document.createElement("div");
-  keystoneTitle.className = "rune-section-title";
-  keystoneTitle.textContent = "Keystone";
-  container.appendChild(keystoneTitle);
-
+  // Keystone
   const keystoneRow = document.createElement("div");
   keystoneRow.className = "rune-row";
+  keystoneRow.innerHTML = `
+    <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${keystone.icon}" alt="${keystone.name}">
+    <span>${keystone.name}</span>
+  `;
+  primaryCol.appendChild(keystoneRow);
 
-  const ksImg = document.createElement("img");
-  ksImg.className = "rune-icon";
-  ksImg.src = `${DD_IMG_BASE_GENERAL}/${keystone.icon}`;
-  ksImg.alt = keystone.name;
+  // Primary choice runes
+  primaryRunes.forEach((r) => {
+    const row = document.createElement("div");
+    row.className = "rune-row";
+    row.innerHTML = `
+      <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${r.icon}" alt="${r.name}">
+      <span>${r.name}</span>
+    `;
+    primaryCol.appendChild(row);
+  });
 
-  const ksName = document.createElement("span");
-  ksName.className = "rune-name";
-  ksName.textContent = keystone.name;
+  /* ===== Secondary Column ===== */
+  const secondaryCol = document.createElement("div");
+  secondaryCol.className = "rune-col";
 
-  keystoneRow.appendChild(ksImg);
-  keystoneRow.appendChild(ksName);
-  container.appendChild(keystoneRow);
+  const secondaryTitle = document.createElement("div");
+  secondaryTitle.className = "rune-col-title";
+  secondaryTitle.textContent = `Secondary: ${secondaryStyle.name}`;
+  secondaryCol.appendChild(secondaryTitle);
 
-  if (primaryRunes && primaryRunes.length > 0) {
-    const title = document.createElement("div");
-    title.className = "rune-section-title";
-    title.textContent = "Primary runes";
-    container.appendChild(title);
+  // 2つのセカンダリルーン
+  secondaryRunes.forEach((r) => {
+    const row = document.createElement("div");
+    row.className = "rune-row";
+    row.innerHTML = `
+      <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${r.icon}" alt="${r.name}">
+      <span>${r.name}</span>
+    `;
+    secondaryCol.appendChild(row);
+  });
 
-    primaryRunes.forEach((r) => {
-      const row = document.createElement("div");
-      row.className = "rune-row";
+  wrapper.appendChild(primaryCol);
+  wrapper.appendChild(secondaryCol);
 
-      const img = document.createElement("img");
-      img.className = "rune-icon";
-      img.src = `${DD_IMG_BASE_GENERAL}/${r.icon}`;
-      img.alt = r.name;
-
-      const nameEl = document.createElement("span");
-      nameEl.className = "rune-name";
-      nameEl.textContent = r.name;
-
-      row.appendChild(img);
-      row.appendChild(nameEl);
-      container.appendChild(row);
-    });
-  }
-
-  if (secondaryRunes && secondaryRunes.length > 0) {
-    const title = document.createElement("div");
-    title.className = "rune-section-title";
-    title.textContent = "Secondary runes";
-    container.appendChild(title);
-
-    secondaryRunes.forEach((r) => {
-      const row = document.createElement("div");
-      row.className = "rune-row";
-
-      const img = document.createElement("img");
-      img.className = "rune-icon";
-      img.src = `${DD_IMG_BASE_GENERAL}/${r.icon}`;
-      img.alt = r.name;
-
-      const nameEl = document.createElement("span");
-      nameEl.className = "rune-name";
-      nameEl.textContent = r.name;
-
-      row.appendChild(img);
-      row.appendChild(nameEl);
-      container.appendChild(row);
-    });
-  }
+  container.appendChild(wrapper);
 }
+
 
 // ===== イベント関連 =====
 
