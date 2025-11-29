@@ -97,38 +97,44 @@
           </div>
         </section>
 
-        <!-- ===== 結果（下・チャンプ縦長＋右にビルド） ===== -->
+        <!-- ===== 結果 ===== -->
         <section class="panel panel-result">
           <h2 class="panel-title" data-i18n="result_title">結果</h2>
 
+          <!-- 左：チャンプ＋ルーン／右：ビルド -->
           <div class="result-main-grid">
-            <!-- 左：チャンピオン縦長 -->
+            <!-- 左カラム：チャンピオン + ルーン -->
             <div class="result-left">
-              <h3 class="result-title" data-i18n="result_champion">
-                チャンピオン
-              </h3>
-              <div
-                class="result-body result-champion-body"
-                id="resultChampion"
-              ></div>
-            </div>
-
-            <!-- 右：アイテム＋ルーンを縦に積む -->
-            <div class="result-right">
               <div class="result-block">
-                <h3 class="result-title" data-i18n="result_items">
-                  アイテム
+                <h3 class="result-title" data-i18n="result_champion">
+                  チャンピオン
                 </h3>
-                <div class="result-body">
-                  <ul id="resultItems" class="result-items"></ul>
-                </div>
+                <div
+                  class="result-body result-champion-body"
+                  id="resultChampion"
+                ></div>
               </div>
 
               <div class="result-block">
                 <h3 class="result-title" data-i18n="result_runes">
                   ルーン
                 </h3>
-                <div class="result-body" id="resultRunes"></div>
+                <div
+                  class="result-body result-runes-body"
+                  id="resultRunes"
+                ></div>
+              </div>
+            </div>
+
+            <!-- 右カラム：ビルド（アイテム） -->
+            <div class="result-right">
+              <div class="result-block">
+                <h3 class="result-title" data-i18n="result_items">
+                  アイテム
+                </h3>
+                <div class="result-body result-items-body">
+                  <ul id="resultItems" class="result-items"></ul>
+                </div>
               </div>
             </div>
           </div>

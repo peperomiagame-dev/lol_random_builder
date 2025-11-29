@@ -85,7 +85,7 @@ body {
   box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
 }
 
-/* --- コントロールは帯っぽくコンパクトにする --- */
+/* --- コントロールは帯っぽくコンパクト --- */
 .panel-controls {
   background: transparent;
   border: none;
@@ -99,7 +99,7 @@ body {
   color: #9ca3af;
 }
 
-/* 結果パネルは余白多め＝「どーん」感 */
+/* 結果パネルは余白多め＝「どーん」 */
 .panel-result {
   padding-top: 18px;
   padding-bottom: 20px;
@@ -188,14 +188,13 @@ label {
   min-height: 1.2em;
 }
 
-/* チャンピオンコントロール */
-
+/* チャンピオンコントロールの横並び */
 .champion-control-row {
   display: flex;
   gap: 8px;
 }
 
-/* ===== 結果レイアウト（左：チャンプ縦長、右：ビルド） ===== */
+/* ===== 結果レイアウト（左：チャンプ＋ルーン / 右：ビルド） ===== */
 
 .result-main-grid {
   display: grid;
@@ -236,10 +235,20 @@ label {
 
 /* チャンプ枠は縦長にして目立たせる */
 .result-champion-body {
-  min-height: 220px;
+  min-height: 230px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ルーン枠もそこそこ高さを確保 */
+.result-runes-body {
+  min-height: 160px;
+}
+
+/* ビルド（アイテム）は大きめの1枚パネル */
+.result-items-body {
+  min-height: 280px;
 }
 
 /* ===== フッター ===== */
@@ -273,7 +282,7 @@ label {
   color: #6b7280;
 }
 
-/* ===== 共通カード系 ===== */
+/* ===== チャンピオンカード（結果側） ===== */
 
 .champion-card {
   display: flex;
@@ -295,7 +304,7 @@ label {
   font-weight: 600;
 }
 
-/* アイテム・ルーン */
+/* ===== アイテム・ルーン（1列） ===== */
 
 .result-items {
   list-style: none;
@@ -317,7 +326,6 @@ label {
 }
 
 /* 画像サイズ：アイテムは少し大きめ */
-
 .item-icon,
 .rune-icon,
 .rune-style-icon {
@@ -357,7 +365,6 @@ label {
 }
 
 /* メイン / サブルーン2列 */
-
 .runes-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -371,7 +378,6 @@ label {
 }
 
 /* ステータスシャード */
-
 .rune-shards-row {
   margin-top: 8px;
   padding-top: 6px;
