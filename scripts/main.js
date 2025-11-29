@@ -17,8 +17,16 @@ const DD_IMG_BASE_GENERAL = "https://ddragon.leagueoflegends.com/cdn/img";
 // LocalStorage に保存するキー
 const STORAGE_LANG_KEY = "lol_rb_lang";
 
-// 標準ブーツ（ティア2）だけ許可するホワイトリスト
-const STANDARD_BOOT_IDS = ["3047", "3006", "3009", "3020", "3111", "3117", "3158"];
+// 標準ブーツ（ティア2のみ許可）
+const STANDARD_BOOT_IDS = [
+  "3047",
+  "3006",
+  "3009",
+  "3020",
+  "3111",
+  "3117",
+  "3158"
+];
 
 // ステータスシャード（固定テーブル）
 const STAT_SHARDS = {
@@ -58,8 +66,8 @@ const STAT_SHARDS = {
     {
       id: 5001,
       icon: "perkShard/5001.png",
-      i18nKey: "shard_flex_health_scaling",
-      defaultName: "Health Scaling"
+      i18nKey: "shard_flex_health",
+      defaultName: "Health"
     }
   ],
   defense: [
@@ -258,7 +266,25 @@ function renderChampionResult(champ) {
   container.appendChild(card);
 }
 
-function selectChampion(champId) {
+function renderChampionMini(champ) {
+  const mini = document.getElementById("currentChampionMini");
+  if (!mini) return;
+  mini.innerHTML = "";
+  if (!champ) return;
+
+  const img = document.createElement("img");
+  img.className = "champion-icon";
+  img.alt = champ.name;
+  img.src = `${DD_IMG_BASE}/champion/${champ.image.full}`;
+
+  const nameEl = document.createElement("span");
+  nameEl.textContent = champ.name;
+
+  mini.appendChild(img);
+  mini.appendChild(nameEl);
+}
+
+function selectChampion(champId, options) {
   if (!champId || !championsData) return;
 
   const champ = getChampionById(champId);
@@ -272,7 +298,12 @@ function selectChampion(champId) {
   }
 
   renderChampionResult(champ);
+  renderChampionMini(champ);
   updateChampionGridSelection(champId);
+
+  if (options && options.closeModal) {
+    closeChampionModal();
+  }
 }
 
 function populateChampionUI() {
@@ -285,7 +316,7 @@ function populateChampionUI() {
     a.name.localeCompare(b.name)
   );
 
-  // 隠しセレクト（フォーム上にはほぼ出さない）
+  // セレクト（ロジック用）
   if (select) {
     select.innerHTML = "";
     const placeholder = document.createElement("option");
@@ -302,7 +333,7 @@ function populateChampionUI() {
     });
   }
 
-  // 画像グリッド
+  // 画像グリッド（モーダル内）
   if (grid) {
     grid.innerHTML = "";
 
@@ -325,7 +356,7 @@ function populateChampionUI() {
       btn.appendChild(nameEl);
 
       btn.addEventListener("click", () => {
-        selectChampion(champ.id);
+        selectChampion(champ.id, { closeModal: true });
       });
 
       grid.appendChild(btn);
@@ -392,7 +423,7 @@ function classifyItemPools(allItems) {
   allItems.forEach((item) => {
     const id = item.id;
 
-    // ブーツ（ティア2だけ）
+    // ブーツ（ホワイトリストのみ）
     if (isBoots(item)) {
       if (!STANDARD_BOOT_IDS.includes(id)) return;
       if (!isItemAvailableOnSR(item)) return;
@@ -403,7 +434,7 @@ function classifyItemPools(allItems) {
       return;
     }
 
-    // それ以外は完成品だけ採用
+    // 完成品だけ採用
     if (!isCompletedItem(item)) return;
 
     any.push(item);
@@ -565,7 +596,7 @@ function renderRunes(runePage) {
     defenseShard
   } = runePage;
 
-  // === スタイル（栄華 / 覇道 など）のアイコン行 ===
+  // スタイル名（栄華 / 覇道など）
   const styleRow = document.createElement("div");
   styleRow.className = "rune-style-row";
 
@@ -587,7 +618,7 @@ function renderRunes(runePage) {
   styleRow.appendChild(secondaryLabel);
   container.appendChild(styleRow);
 
-  // === メイン / サブルーンを2列レイアウト ===
+  // メイン / サブルーン2列
   const wrapper = document.createElement("div");
   wrapper.className = "runes-two-col";
 
@@ -631,7 +662,7 @@ function renderRunes(runePage) {
   wrapper.appendChild(secondaryCol);
   container.appendChild(wrapper);
 
-  // === シャード（攻撃 / 柔軟 / 防御） ===
+  // シャード（攻撃 / 柔軟 / 防御）
   const shardsRow = document.createElement("div");
   shardsRow.className = "rune-shards-row";
 
@@ -668,6 +699,20 @@ function renderRunes(runePage) {
   container.appendChild(shardsRow);
 }
 
+// ===== モーダル制御 =====
+
+function openChampionModal() {
+  const modal = document.getElementById("championModal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+}
+
+function closeChampionModal() {
+  const modal = document.getElementById("championModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+}
+
 // ===== イベント関連 =====
 
 function setupLangButtons() {
@@ -686,6 +731,13 @@ function setupLangButtons() {
 function setupControls() {
   const btnRandomChamp = document.getElementById("btnRandomChampion");
   const btnGenerate = document.getElementById("btnGenerate");
+  const btnOpenChampionModal = document.getElementById(
+    "btnOpenChampionModal"
+  );
+  const btnCloseChampionModal = document.getElementById(
+    "btnCloseChampionModal"
+  );
+  const backdrop = document.getElementById("championModalBackdrop");
 
   if (btnRandomChamp) {
     btnRandomChamp.addEventListener("click", () => {
@@ -708,6 +760,30 @@ function setupControls() {
       }
     });
   }
+
+  if (btnOpenChampionModal) {
+    btnOpenChampionModal.addEventListener("click", () => {
+      if (!championsData) {
+        loadDataDragonData().then(() => {
+          openChampionModal();
+        });
+      } else {
+        openChampionModal();
+      }
+    });
+  }
+
+  if (btnCloseChampionModal) {
+    btnCloseChampionModal.addEventListener("click", () => {
+      closeChampionModal();
+    });
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener("click", () => {
+      closeChampionModal();
+    });
+  }
 }
 
 function pickRandomChampion() {
@@ -718,7 +794,7 @@ function pickRandomChampion() {
 
   const randomChamp =
     entries[Math.floor(Math.random() * entries.length)];
-  selectChampion(randomChamp.id);
+  selectChampion(randomChamp.id, { closeModal: false });
 }
 
 function generateBuild() {
@@ -736,7 +812,7 @@ function generateBuild() {
       const randomChamp =
         entries[Math.floor(Math.random() * entries.length)];
       champId = randomChamp.id;
-      selectChampion(champId);
+      selectChampion(champId, { closeModal: false });
     }
   }
 
