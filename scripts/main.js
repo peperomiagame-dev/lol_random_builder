@@ -164,7 +164,30 @@ function updateChampionGridSelection(champId) {
   });
 }
 
-// 選択中チャンピオンをセット（結果側＋グリッドのハイライト）
+function renderChampionResult(champ) {
+  const container = document.getElementById("resultChampion");
+  if (!container) return;
+  container.innerHTML = "";
+  if (!champ) return;
+
+  const card = document.createElement("div");
+  card.className = "champion-card";
+
+  const img = document.createElement("img");
+  img.className = "champion-icon";
+  img.alt = champ.name;
+  img.src = `${DD_IMG_BASE}/champion/${champ.image.full}`;
+
+  const nameEl = document.createElement("div");
+  nameEl.className = "champion-name";
+  nameEl.textContent = champ.name;
+
+  card.appendChild(img);
+  card.appendChild(nameEl);
+  container.appendChild(card);
+}
+
+// 選択中チャンピオンをセット
 function selectChampion(champId) {
   if (!champId || !championsData) return;
 
@@ -178,11 +201,11 @@ function selectChampion(champId) {
     select.value = champId;
   }
 
-  renderChampion(champ);
+  renderChampionResult(champ);
   updateChampionGridSelection(champId);
 }
 
-// チャンピオン一覧（セレクト＋画像グリッド）を作る
+// セレクトと画像グリッドを構築
 function populateChampionUI() {
   if (!championsData) return;
 
@@ -193,7 +216,7 @@ function populateChampionUI() {
     a.name.localeCompare(b.name)
   );
 
-  // 隠しセレクトの中身
+  // 隠しセレクト
   if (select) {
     select.innerHTML = "";
     const placeholder = document.createElement("option");
@@ -210,7 +233,7 @@ function populateChampionUI() {
     });
   }
 
-  // 画像＋名前グリッド
+  // 画像グリッド
   if (grid) {
     grid.innerHTML = "";
 
@@ -240,33 +263,8 @@ function populateChampionUI() {
     });
   }
 
-  // placeholder の翻訳を再適用
+  // placeholder の翻訳再適用
   applyTranslations();
-}
-
-// ===== 結果描画（右側パネル） =====
-
-function renderChampion(champ) {
-  const container = document.getElementById("resultChampion");
-  if (!container) return;
-  container.innerHTML = "";
-  if (!champ) return;
-
-  const card = document.createElement("div");
-  card.className = "champion-card";
-
-  const img = document.createElement("img");
-  img.className = "champion-icon";
-  img.alt = champ.name;
-  img.src = `${DD_IMG_BASE}/champion/${champ.image.full}`;
-
-  const nameEl = document.createElement("div");
-  nameEl.className = "champion-name";
-  nameEl.textContent = champ.name;
-
-  card.appendChild(img);
-  card.appendChild(nameEl);
-  container.appendChild(card);
 }
 
 // ===== アイテム関連 =====

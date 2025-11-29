@@ -25,24 +25,25 @@
         <h2 class="panel-title" data-i18n="section_controls">Controls</h2>
 
         <div class="form-group">
-        <label for="championSelect" data-i18n="label_champion">Champion</label>
+        <label for="championSelect" data-i18n="label_champion">チャンピオン</label>
 
         <!-- ロジック用の隠しセレクト（画面には出さない） -->
         <select id="championSelect" class="select" style="display:none;">
             <option value="" data-i18n="champion_placeholder">
-            Select a champion
+            チャンピオンを選択してください
             </option>
         </select>
 
-        <!-- ここに画像＋名前の一覧を作る -->
+        <!-- ここに「画像＋名前」の一覧を JS で並べる -->
         <div id="championGrid" class="champion-grid">
-            <!-- JS でチャンピオンカードを追加する -->
+            <!-- JS がカードを追加する -->
         </div>
 
         <button id="btnRandomChampion" class="btn secondary" data-i18n="btn_random_champion">
-            Random champion
+            チャンピオンをランダム
         </button>
         </div>
+
 
 
         <div class="form-group">
