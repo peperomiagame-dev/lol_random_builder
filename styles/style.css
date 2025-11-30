@@ -209,6 +209,7 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
   gap: 16px;
+  align-items: stretch;
 }
 
 @media (max-width: 900px) {
@@ -217,7 +218,23 @@ body {
   }
 }
 
-.result-left,
+/* 左カラムは縦に伸ばして、ルーン枠を余白分だけ伸ばす */
+
+.result-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-left .result-block:first-child {
+  /* チャンプ枠 */
+  margin-top: 8px;
+}
+
+.result-left .result-block:last-child {
+  /* ルーン枠を余り高さぶん伸ばす */
+  flex: 1 1 auto;
+}
+
 .result-right {
   display: flex;
   flex-direction: column;
@@ -251,10 +268,10 @@ body {
   justify-content: center;
 }
 
-/* ルーン枠 */
+/* ルーン枠は残り高さを占有 */
 
 .result-runes-body {
-  min-height: 180px;
+  height: 100%;
 }
 
 /* ビルド（アイテム）は大きめの1枚パネル */
@@ -304,7 +321,7 @@ body {
 }
 
 .champion-icon {
-  width: 144px;   /* 以前の約1.5倍 */
+  width: 144px;   /* 大きめ */
   height: 144px;
   border-radius: 18px;
   object-fit: cover;
@@ -362,11 +379,18 @@ body {
   white-space: nowrap;
 }
 
+/* アイテム名を少し大きく */
+
+.item-name {
+  font-size: 0.95rem;
+}
+
 /* ルーンスタイル（Primary / Secondary のラベル行） */
+/* → Grid で2列固定にして、左右の位置をきっちり揃える */
 
 .rune-style-row {
-  display: flex;
-  justify-content: space-between; /* 左右で揃える */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 6px;
   font-size: 0.9rem;

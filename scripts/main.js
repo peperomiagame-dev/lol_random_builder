@@ -28,7 +28,7 @@ const STANDARD_BOOT_IDS = [
   "3158"
 ];
 
-// ステータスシャード（アイコンは StatMods シリーズを直接指定）
+// ステータスシャード（StatMods アイコンを直指定）
 const STAT_SHARDS = {
   offense: [
     {
@@ -166,7 +166,6 @@ function setRandomChampionMode(enabled) {
   btn.classList.toggle("active", isRandomChampion);
   btn.setAttribute("aria-pressed", isRandomChampion ? "true" : "false");
 
-  // 翻訳が無くても日本語でそれっぽく出るようにしておく
   const onText =
     (translations && translations.toggle_random_on) ||
     "チャンピオンランダム: ON";
@@ -193,7 +192,6 @@ async function loadLanguage(lang) {
     setActiveLangButton(lang);
     applyTranslations();
 
-    // ランダムトグルとボタンの文言を言語に合わせて更新
     setRandomChampionMode(isRandomChampion);
     if (!selectedChampionId) {
       updateChampionButtonLabel(null);
@@ -324,7 +322,6 @@ function populateChampionUI() {
     a.name.localeCompare(b.name)
   );
 
-  // セレクト（ロジック用）
   if (select) {
     select.innerHTML = "";
     const placeholder = document.createElement("option");
@@ -341,7 +338,6 @@ function populateChampionUI() {
     });
   }
 
-  // 画像グリッド（モーダル内）
   if (grid) {
     grid.innerHTML = "";
 
@@ -377,8 +373,14 @@ function populateChampionUI() {
 // ===== アイテム関連 =====
 
 function isItemAvailableOnSR(item) {
-  if (!item.maps) return true;
-  return item.maps["11"] !== false;
+  // サモリフ（マップ11）対応かどうか
+  const mapsOk = !item.maps || item.maps["11"] !== false;
+  // CLASSIC モード（サモリフ）対応かどうか
+  const modesOk =
+    !item.modes ||
+    item.modes.length === 0 ||
+    item.modes.includes("CLASSIC");
+  return mapsOk && modesOk;
 }
 
 function isBoots(item) {
@@ -391,7 +393,7 @@ function isCompletedItem(item) {
 
   if (item.gold && item.gold.purchasable === false) return false;
 
-  // 消費アイテム（エリクサー、ワードなど）は除外
+  // 消費アイテム（エリクサー、トリンケットなど）は除外
   if (item.consumed === true) return false;
   const tags = item.tags || [];
   if (
@@ -402,7 +404,6 @@ function isCompletedItem(item) {
     return false;
   }
 
-  // 上位に合成できるなら素材扱い
   if (Array.isArray(item.into) && item.into.length > 0) return false;
 
   return true;
@@ -439,7 +440,6 @@ function classifyItemPools(allItems) {
   allItems.forEach((item) => {
     const id = item.id;
 
-    // ブーツ（ホワイトリストのみ）
     if (isBoots(item)) {
       if (!STANDARD_BOOT_IDS.includes(id)) return;
       if (!isItemAvailableOnSR(item)) return;
@@ -450,7 +450,6 @@ function classifyItemPools(allItems) {
       return;
     }
 
-    // 完成品だけ採用
     if (!isCompletedItem(item)) return;
 
     any.push(item);
@@ -511,7 +510,6 @@ function pickRandomItemsByBuildType(buildType) {
   const mainPool = pool.filter((item) => !isBoots(item));
   const mains = pickRandomDistinct(mainPool, 5);
 
-  // 念のため ID で重複排除
   const combined = uniqueById([...chosenBoots, ...mains]);
   return combined;
 }
@@ -689,7 +687,7 @@ function renderRunes(runePage) {
     icon.alt = shard.name;
 
     const label = document.createElement("span");
-    label.textContent = shard.name; // 翻訳キーは使わず短い名前だけ
+    label.textContent = shard.name;
 
     shardDiv.appendChild(icon);
     shardDiv.appendChild(label);
@@ -806,15 +804,14 @@ function generateBuild() {
 
   let champId = selectedChampionId;
 
-  // ランダムON、または選択なし → ランダム
   if (isRandomChampion || !champId) {
     const randomChamp = pickRandomFrom(entries);
     champId = randomChamp.id;
-    selectChampion(champId, { closeModal: false }); // 状態とボタンだけ更新
+    selectChampion(champId, { closeModal: false });
   }
 
   const champ = getChampionById(champId);
-  renderChampionResult(champ); // ここで初めて結果欄に載る
+  renderChampionResult(champ);
 
   const buildTypeSelect = document.getElementById("buildTypeSelect");
   const buildType = buildTypeSelect
@@ -837,7 +834,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupLangButtons();
   setupControls();
 
-  // 初期状態ではボタン文言だけ整えておく
   setRandomChampionMode(false);
 
   loadLanguage(currentLang).then(() => {
