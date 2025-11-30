@@ -63,7 +63,7 @@ body {
   border-color: #2563eb;
 }
 
-/* ===== メインレイアウト（上下スタック） ===== */
+/* ===== メイン ===== */
 
 .site-main {
   padding: 24px 0 32px;
@@ -85,7 +85,8 @@ body {
   box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
 }
 
-/* --- コントロールは帯っぽくコンパクト --- */
+/* コントロールは帯っぽくコンパクト */
+
 .panel-controls {
   background: transparent;
   border: none;
@@ -99,7 +100,8 @@ body {
   color: #9ca3af;
 }
 
-/* 結果パネルは余白多め＝「どーん」 */
+/* 結果パネルはしっかりカード感 */
+
 .panel-result {
   padding-top: 18px;
   padding-bottom: 20px;
@@ -110,22 +112,6 @@ body {
 .panel-title {
   margin: 0 0 10px;
   font-size: 1.1rem;
-}
-
-.form-group {
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.form-group-buildtype {
-  max-width: 320px;
-}
-
-label {
-  font-size: 0.9rem;
-  color: #e5e7eb;
 }
 
 .select {
@@ -176,22 +162,45 @@ label {
   cursor: default;
 }
 
-/* ビルド生成ボタンは横幅広く */
-.btn-generate-wide {
-  width: 100%;
-}
-
 .status-text {
-  margin-top: 2px;
+  margin-top: 6px;
   font-size: 0.8rem;
   color: #9ca3af;
   min-height: 1.2em;
 }
 
-/* チャンピオンコントロールの横並び */
-.champion-control-row {
+/* ===== コントロール 1列レイアウト ===== */
+
+.controls-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
+}
+
+.control-champion-btn {
+  min-width: 220px;
+}
+
+.control-buildtype {
+  min-width: 180px;
+}
+
+.control-random-toggle {
+  min-width: 170px;
+}
+
+.control-generate-btn {
+  flex: 1 1 auto;
+  min-width: 180px;
+}
+
+/* トグルON状態 */
+
+.control-random-toggle.active {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #0b1120;
 }
 
 /* ===== 結果レイアウト（左：チャンプ＋ルーン / 右：ビルド） ===== */
@@ -233,22 +242,25 @@ label {
   font-size: 0.9rem;
 }
 
-/* チャンプ枠は縦長にして目立たせる */
+/* チャンピオン枠は縦長＋中央寄せで目立たせる */
+
 .result-champion-body {
-  min-height: 230px;
+  min-height: 260px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ルーン枠もそこそこ高さを確保 */
+/* ルーン枠 */
+
 .result-runes-body {
-  min-height: 160px;
+  min-height: 180px;
 }
 
 /* ビルド（アイテム）は大きめの1枚パネル */
+
 .result-items-body {
-  min-height: 280px;
+  min-height: 320px;
 }
 
 /* ===== フッター ===== */
@@ -292,9 +304,9 @@ label {
 }
 
 .champion-icon {
-  width: 96px;
-  height: 96px;
-  border-radius: 16px;
+  width: 144px;   /* 以前の約1.5倍 */
+  height: 144px;
+  border-radius: 18px;
   object-fit: cover;
   border: 1px solid rgba(148, 163, 184, 0.5);
 }
@@ -325,20 +337,22 @@ label {
   font-size: 0.85rem;
 }
 
-/* 画像サイズ：アイテムは少し大きめ */
 .item-icon,
 .rune-icon,
 .rune-style-icon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
   object-fit: cover;
   border: 1px solid rgba(148, 163, 184, 0.6);
 }
 
+/* アイテムはかなり大きめに */
+
 .item-icon {
-  width: 34px;
-  height: 34px;
+  width: 96px;
+  height: 96px;
+  border-radius: 16px;
 }
 
 .item-name,
@@ -348,11 +362,11 @@ label {
   white-space: nowrap;
 }
 
-/* ルーンスタイル（栄華 / 覇道など）のラベル行 */
+/* ルーンスタイル（Primary / Secondary のラベル行） */
 
 .rune-style-row {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: space-between; /* 左右で揃える */
   gap: 12px;
   margin-bottom: 6px;
   font-size: 0.9rem;
@@ -364,7 +378,8 @@ label {
   gap: 6px;
 }
 
-/* メイン / サブルーン2列 */
+/* メイン / サブルーン 2列きっちり */
+
 .runes-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -378,6 +393,7 @@ label {
 }
 
 /* ステータスシャード */
+
 .rune-shards-row {
   margin-top: 8px;
   padding-top: 6px;

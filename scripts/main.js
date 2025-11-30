@@ -28,66 +28,48 @@ const STANDARD_BOOT_IDS = [
   "3158"
 ];
 
-// ステータスシャード（固定テーブル）
+// ステータスシャード（アイコンは StatMods シリーズを直接指定）
 const STAT_SHARDS = {
   offense: [
     {
-      id: 5008,
-      icon: "perkShard/5008.png",
-      i18nKey: "shard_offense_adaptive",
-      defaultName: "Adaptive Force"
+      icon: "perk-images/StatMods/StatModsAdaptiveForceIcon.png",
+      name: "アダプティブフォース"
     },
     {
-      id: 5005,
-      icon: "perkShard/5005.png",
-      i18nKey: "shard_offense_attack_speed",
-      defaultName: "Attack Speed"
+      icon: "perk-images/StatMods/StatModsAttackSpeedIcon.png",
+      name: "攻撃速度"
     },
     {
-      id: 5007,
-      icon: "perkShard/5007.png",
-      i18nKey: "shard_offense_ability_haste",
-      defaultName: "Ability Haste"
+      icon: "perk-images/StatMods/StatModsAbilityHasteIcon.png",
+      name: "スキルヘイスト"
     }
   ],
   flex: [
     {
-      id: 5008,
-      icon: "perkShard/5008.png",
-      i18nKey: "shard_flex_adaptive",
-      defaultName: "Adaptive Force"
+      icon: "perk-images/StatMods/StatModsAdaptiveForceIcon.png",
+      name: "アダプティブフォース"
     },
     {
-      id: 5010,
-      icon: "perkShard/5010.png",
-      i18nKey: "shard_flex_move_speed",
-      defaultName: "Move Speed"
+      icon: "perk-images/StatMods/StatModsMovementSpeedIcon.png",
+      name: "移動速度"
     },
     {
-      id: 5001,
-      icon: "perkShard/5001.png",
-      i18nKey: "shard_flex_health",
-      defaultName: "Health"
+      icon: "perk-images/StatMods/StatModsHealthPlusIcon.png",
+      name: "体力"
     }
   ],
   defense: [
     {
-      id: 5011,
-      icon: "perkShard/5011.png",
-      i18nKey: "shard_defense_health",
-      defaultName: "Health"
+      icon: "perk-images/StatMods/StatModsHealthScalingIcon.png",
+      name: "スケーリング体力"
     },
     {
-      id: 5013,
-      icon: "perkShard/5013.png",
-      i18nKey: "shard_defense_tenacity",
-      defaultName: "Tenacity and Slow Resist"
+      icon: "perk-images/StatMods/StatModsArmorIcon.png",
+      name: "物理防御"
     },
     {
-      id: 5001,
-      icon: "perkShard/5001.png",
-      i18nKey: "shard_defense_health_scaling",
-      defaultName: "Health Scaling"
+      icon: "perk-images/StatMods/StatModsMagicResIcon.png",
+      name: "魔法防御"
     }
   ]
 };
@@ -101,6 +83,7 @@ let itemsData = null;
 let runesData = null;
 
 let selectedChampionId = null;
+let isRandomChampion = false; // チャンピオンランダム トグル
 
 // ===== ユーティリティ =====
 
@@ -158,6 +141,42 @@ function pickRandomFrom(list) {
   return list[idx];
 }
 
+// チャンピオンボタンの表示テキストを更新
+function updateChampionButtonLabel(nameOrNull) {
+  const btn = document.getElementById("btnOpenChampionModal");
+  if (!btn) return;
+
+  if (nameOrNull) {
+    if (btn.hasAttribute("data-i18n")) {
+      btn.removeAttribute("data-i18n");
+    }
+    btn.textContent = nameOrNull;
+  } else {
+    btn.setAttribute("data-i18n", "btn_open_champion_picker");
+    btn.textContent = t("btn_open_champion_picker");
+  }
+}
+
+// ランダムトグルの表示
+function setRandomChampionMode(enabled) {
+  isRandomChampion = !!enabled;
+  const btn = document.getElementById("btnRandomToggle");
+  if (!btn) return;
+
+  btn.classList.toggle("active", isRandomChampion);
+  btn.setAttribute("aria-pressed", isRandomChampion ? "true" : "false");
+
+  // 翻訳が無くても日本語でそれっぽく出るようにしておく
+  const onText =
+    (translations && translations.toggle_random_on) ||
+    "チャンピオンランダム: ON";
+  const offText =
+    (translations && translations.toggle_random_off) ||
+    "チャンピオンランダム: OFF";
+
+  btn.textContent = isRandomChampion ? onText : offText;
+}
+
 // ===== 言語ロード =====
 
 async function loadLanguage(lang) {
@@ -173,6 +192,12 @@ async function loadLanguage(lang) {
     setHtmlLangAttr(lang);
     setActiveLangButton(lang);
     applyTranslations();
+
+    // ランダムトグルとボタンの文言を言語に合わせて更新
+    setRandomChampionMode(isRandomChampion);
+    if (!selectedChampionId) {
+      updateChampionButtonLabel(null);
+    }
   } catch (err) {
     console.error("Failed to load language:", err);
   }
@@ -243,6 +268,7 @@ function updateChampionGridSelection(champId) {
   });
 }
 
+// 結果欄にチャンピオンを描画
 function renderChampionResult(champ) {
   const container = document.getElementById("resultChampion");
   if (!container) return;
@@ -266,6 +292,7 @@ function renderChampionResult(champ) {
   container.appendChild(card);
 }
 
+// チャンピオン選択（結果はまだ更新しない）
 function selectChampion(champId, options) {
   if (!champId || !championsData) return;
 
@@ -279,8 +306,8 @@ function selectChampion(champId, options) {
     select.value = champId;
   }
 
-  renderChampionResult(champ);
   updateChampionGridSelection(champId);
+  updateChampionButtonLabel(champ.name);
 
   if (options && options.closeModal) {
     closeChampionModal();
@@ -364,9 +391,8 @@ function isCompletedItem(item) {
 
   if (item.gold && item.gold.purchasable === false) return false;
 
-  // 消費アイテム（エリクサーなど）は除外
+  // 消費アイテム（エリクサー、ワードなど）は除外
   if (item.consumed === true) return false;
-
   const tags = item.tags || [];
   if (
     tags.includes("Consumable") ||
@@ -391,6 +417,15 @@ function pickRandomDistinct(list, count) {
     copy.splice(idx, 1);
   }
   return result;
+}
+
+function uniqueById(list) {
+  const seen = new Set();
+  return list.filter((item) => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
 }
 
 function classifyItemPools(allItems) {
@@ -476,7 +511,9 @@ function pickRandomItemsByBuildType(buildType) {
   const mainPool = pool.filter((item) => !isBoots(item));
   const mains = pickRandomDistinct(mainPool, 5);
 
-  return [...chosenBoots, ...mains];
+  // 念のため ID で重複排除
+  const combined = uniqueById([...chosenBoots, ...mains]);
+  return combined;
 }
 
 function renderItems(items) {
@@ -507,7 +544,7 @@ function renderItems(items) {
   });
 }
 
-// ===== ルーン関連（メイン / サブ + シャード） =====
+// ===== ルーン関連 =====
 
 function pickRandomRunesByBuildType(buildType) {
   if (!Array.isArray(runesData) || runesData.length === 0) return null;
@@ -543,7 +580,6 @@ function pickRandomRunesByBuildType(buildType) {
   const secPicked = pickRandomDistinct(flatSecondary, 2);
   secPicked.forEach((r) => secondaryRunes.push(r));
 
-  // ステータスシャード（攻撃 / 柔軟 / 防御）
   const offenseShard = pickRandomFrom(STAT_SHARDS.offense);
   const flexShard = pickRandomFrom(STAT_SHARDS.flex);
   const defenseShard = pickRandomFrom(STAT_SHARDS.defense);
@@ -577,7 +613,6 @@ function renderRunes(runePage) {
     defenseShard
   } = runePage;
 
-  // スタイル名（栄華 / 覇道など）
   const styleRow = document.createElement("div");
   styleRow.className = "rune-style-row";
 
@@ -599,11 +634,9 @@ function renderRunes(runePage) {
   styleRow.appendChild(secondaryLabel);
   container.appendChild(styleRow);
 
-  // メイン / サブルーン2列
   const wrapper = document.createElement("div");
   wrapper.className = "runes-two-col";
 
-  // Primary column
   const primaryCol = document.createElement("div");
   primaryCol.className = "rune-col";
 
@@ -625,7 +658,6 @@ function renderRunes(runePage) {
     primaryCol.appendChild(row);
   });
 
-  // Secondary column
   const secondaryCol = document.createElement("div");
   secondaryCol.className = "rune-col";
 
@@ -643,7 +675,6 @@ function renderRunes(runePage) {
   wrapper.appendChild(secondaryCol);
   container.appendChild(wrapper);
 
-  // シャード（攻撃 / 柔軟 / 防御）
   const shardsRow = document.createElement("div");
   shardsRow.className = "rune-shards-row";
 
@@ -655,14 +686,10 @@ function renderRunes(runePage) {
     const icon = document.createElement("img");
     icon.className = "rune-icon";
     icon.src = `${DD_IMG_BASE_GENERAL}/${shard.icon}`;
-    icon.alt = shard.defaultName;
+    icon.alt = shard.name;
 
     const label = document.createElement("span");
-    const localized =
-      shard.i18nKey && translations[shard.i18nKey]
-        ? translations[shard.i18nKey]
-        : shard.defaultName;
-    label.textContent = localized;
+    label.textContent = shard.name; // 翻訳キーは使わず短い名前だけ
 
     shardDiv.appendChild(icon);
     shardDiv.appendChild(label);
@@ -710,7 +737,6 @@ function setupLangButtons() {
 }
 
 function setupControls() {
-  const btnRandomChamp = document.getElementById("btnRandomChampion");
   const btnGenerate = document.getElementById("btnGenerate");
   const btnOpenChampionModal = document.getElementById(
     "btnOpenChampionModal"
@@ -719,16 +745,7 @@ function setupControls() {
     "btnCloseChampionModal"
   );
   const backdrop = document.getElementById("championModalBackdrop");
-
-  if (btnRandomChamp) {
-    btnRandomChamp.addEventListener("click", () => {
-      if (!championsData) {
-        loadDataDragonData().then(pickRandomChampion);
-      } else {
-        pickRandomChampion();
-      }
-    });
-  }
+  const btnRandomToggle = document.getElementById("btnRandomToggle");
 
   if (btnGenerate) {
     btnGenerate.addEventListener("click", () => {
@@ -765,17 +782,12 @@ function setupControls() {
       closeChampionModal();
     });
   }
-}
 
-function pickRandomChampion() {
-  if (!championsData) return;
-
-  const entries = getChampionEntries();
-  if (entries.length === 0) return;
-
-  const randomChamp =
-    entries[Math.floor(Math.random() * entries.length)];
-  selectChampion(randomChamp.id, { closeModal: false });
+  if (btnRandomToggle) {
+    btnRandomToggle.addEventListener("click", () => {
+      setRandomChampionMode(!isRandomChampion);
+    });
+  }
 }
 
 function generateBuild() {
@@ -786,16 +798,23 @@ function generateBuild() {
 
   showStatus("msg_generating");
 
-  let champId = selectedChampionId;
-  if (!champId) {
-    const entries = getChampionEntries();
-    if (entries.length > 0) {
-      const randomChamp =
-        entries[Math.floor(Math.random() * entries.length)];
-      champId = randomChamp.id;
-      selectChampion(champId, { closeModal: false });
-    }
+  const entries = getChampionEntries();
+  if (entries.length === 0) {
+    showStatus("msg_error");
+    return;
   }
+
+  let champId = selectedChampionId;
+
+  // ランダムON、または選択なし → ランダム
+  if (isRandomChampion || !champId) {
+    const randomChamp = pickRandomFrom(entries);
+    champId = randomChamp.id;
+    selectChampion(champId, { closeModal: false }); // 状態とボタンだけ更新
+  }
+
+  const champ = getChampionById(champId);
+  renderChampionResult(champ); // ここで初めて結果欄に載る
 
   const buildTypeSelect = document.getElementById("buildTypeSelect");
   const buildType = buildTypeSelect
@@ -817,6 +836,9 @@ document.addEventListener("DOMContentLoaded", () => {
   currentLang = detectInitialLang();
   setupLangButtons();
   setupControls();
+
+  // 初期状態ではボタン文言だけ整えておく
+  setRandomChampionMode(false);
 
   loadLanguage(currentLang).then(() => {
     loadDataDragonData();

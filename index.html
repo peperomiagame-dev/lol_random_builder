@@ -24,36 +24,26 @@
     <!-- メイン -->
     <main class="site-main">
       <div class="container main-stack">
-        <!-- ===== コントロール（上・コンパクト） ===== -->
+        <!-- ===== コントロール（上・1列） ===== -->
         <section class="panel panel-controls">
           <h2 class="panel-title" data-i18n="controls_title">コントロール</h2>
 
-          <!-- チャンピオン選択 -->
-          <div class="form-group">
-            <label data-i18n="label_champion">チャンピオン</label>
-            <div class="champion-control-row">
-              <button
-                id="btnOpenChampionModal"
-                type="button"
-                class="btn secondary"
-                data-i18n="btn_open_champion_picker"
-              >
-                チャンピオンを選択
-              </button>
-              <button
-                id="btnRandomChampion"
-                type="button"
-                class="btn ghost"
-                data-i18n="btn_random_champion"
-              >
-                チャンピオンをランダム
-              </button>
-            </div>
-          </div>
+          <div class="controls-row">
+            <!-- チャンピオン選択（押したらモーダル。選択後はチャンプ名表示） -->
+            <button
+              id="btnOpenChampionModal"
+              type="button"
+              class="btn secondary control-champion-btn"
+              data-i18n="btn_open_champion_picker"
+            >
+              チャンピオンを選択
+            </button>
 
-          <!-- ビルドタイプ（ラベル無しでセレクトだけ） -->
-          <div class="form-group form-group-buildtype">
-            <select id="buildTypeSelect" class="select">
+            <!-- ビルド方針（ラベル無し） -->
+            <select
+              id="buildTypeSelect"
+              class="select control-buildtype"
+            >
               <option value="ap" data-i18n="build_type_ap">
                 AP（アビリティパワー）
               </option>
@@ -73,14 +63,21 @@
                 カオス
               </option>
             </select>
-          </div>
 
-          <!-- 生成ボタン -->
-          <div class="form-group">
+            <!-- チャンピオンをランダム（トグル） -->
+            <button
+              id="btnRandomToggle"
+              type="button"
+              class="btn ghost control-random-toggle"
+            >
+              チャンピオンランダム: OFF
+            </button>
+
+            <!-- ビルド生成 -->
             <button
               id="btnGenerate"
               type="button"
-              class="btn primary btn-generate-wide"
+              class="btn primary control-generate-btn"
               data-i18n="btn_generate"
             >
               ビルドを生成
@@ -126,7 +123,7 @@
               </div>
             </div>
 
-            <!-- 右カラム：ビルド（アイテム） -->
+            <!-- 右カラム：ビルド（アイテム1列） -->
             <div class="result-right">
               <div class="result-block">
                 <h3 class="result-title" data-i18n="result_items">
