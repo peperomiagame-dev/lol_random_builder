@@ -210,6 +210,12 @@ body {
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
   gap: 16px;
   align-items: stretch;
+  min-height: 360px; /* 全体の基準高さ */
+}
+
+.result-left,
+.result-right {
+  height: 100%;
 }
 
 @media (max-width: 900px) {
@@ -218,27 +224,52 @@ body {
   }
 }
 
-/* 左カラムは縦に伸ばして、ルーン枠を余白分だけ伸ばす */
+/* 左カラムは「チャンプ」「ルーン」で高さを分割 */
 
 .result-left {
   display: flex;
   flex-direction: column;
 }
 
+.result-left .result-block {
+  display: flex;
+  flex-direction: column;
+}
+
+/* チャンプ枠: だいたい上半分弱 / ルーン枠: 残り全部 */
 .result-left .result-block:first-child {
-  /* チャンプ枠 */
-  margin-top: 8px;
+  flex: 3 1 0;
 }
 
 .result-left .result-block:last-child {
-  /* ルーン枠を余り高さぶん伸ばす */
-  flex: 1 1 auto;
+  flex: 4 1 0;
 }
+
+/* 左カラム内のボディはそれぞれのブロックの高さをフル使用 */
+.result-left .result-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* 右カラムはアイテム枠を高さいっぱいに */
 
 .result-right {
   display: flex;
   flex-direction: column;
 }
+
+.result-right .result-block {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+.result-items-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* ===== 結果枠共通 ===== */
 
 .result-block {
   margin-top: 8px;
@@ -255,29 +286,21 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.35);
   padding: 8px 10px;
   background: rgba(15, 23, 42, 0.8);
-  min-height: 40px;
   font-size: 0.9rem;
 }
 
-/* チャンピオン枠は縦長＋中央寄せで目立たせる */
+/* チャンピオン枠は中でセンタリング */
 
 .result-champion-body {
-  min-height: 260px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ルーン枠は残り高さを占有 */
-
-.result-runes-body {
-  height: 100%;
-}
-
-/* ビルド（アイテム）は大きめの1枚パネル */
-
+/* ルーン枠・アイテム枠は高さは親の flex に任せる */
+.result-runes-body,
 .result-items-body {
-  min-height: 320px;
+  height: 100%;
 }
 
 /* ===== フッター ===== */
@@ -321,7 +344,7 @@ body {
 }
 
 .champion-icon {
-  width: 144px;   /* 大きめ */
+  width: 144px;
   height: 144px;
   border-radius: 18px;
   object-fit: cover;
@@ -385,8 +408,7 @@ body {
   font-size: 0.95rem;
 }
 
-/* ルーンスタイル（Primary / Secondary のラベル行） */
-/* → Grid で2列固定にして、左右の位置をきっちり揃える */
+/* ===== ルーンスタイル（Primary / Secondary）2列 ===== */
 
 .rune-style-row {
   display: grid;
@@ -402,7 +424,7 @@ body {
   gap: 6px;
 }
 
-/* メイン / サブルーン 2列きっちり */
+/* メイン / サブルーン 2列 */
 
 .runes-two-col {
   display: grid;

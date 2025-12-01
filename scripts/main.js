@@ -28,6 +28,14 @@ const STANDARD_BOOT_IDS = [
   "3158"
 ];
 
+// サモリフで使えないイベント系アイテムなどの「名前キーワード」ブラックリスト
+// 必要になったらここにどんどん足していく想定
+const EXCLUDED_ITEM_NAME_KEYWORDS = [
+  "天帝の剣",          // JP 名
+  "Sword of the Emperor", // それっぽい EN 名（保険）
+  "Emperor's Sword"
+];
+
 // ステータスシャード（StatMods アイコンを直指定）
 const STAT_SHARDS = {
   offense: [
@@ -83,7 +91,7 @@ let itemsData = null;
 let runesData = null;
 
 let selectedChampionId = null;
-let isRandomChampion = false; // チャンピオンランダム トグル
+let isRandomChampion = false;
 
 // ===== ユーティリティ =====
 
@@ -141,7 +149,6 @@ function pickRandomFrom(list) {
   return list[idx];
 }
 
-// チャンピオンボタンの表示テキストを更新
 function updateChampionButtonLabel(nameOrNull) {
   const btn = document.getElementById("btnOpenChampionModal");
   if (!btn) return;
@@ -157,7 +164,6 @@ function updateChampionButtonLabel(nameOrNull) {
   }
 }
 
-// ランダムトグルの表示
 function setRandomChampionMode(enabled) {
   isRandomChampion = !!enabled;
   const btn = document.getElementById("btnRandomToggle");
@@ -266,7 +272,6 @@ function updateChampionGridSelection(champId) {
   });
 }
 
-// 結果欄にチャンピオンを描画
 function renderChampionResult(champ) {
   const container = document.getElementById("resultChampion");
   if (!container) return;
@@ -290,7 +295,6 @@ function renderChampionResult(champ) {
   container.appendChild(card);
 }
 
-// チャンピオン選択（結果はまだ更新しない）
 function selectChampion(champId, options) {
   if (!champId || !championsData) return;
 
@@ -373,13 +377,13 @@ function populateChampionUI() {
 // ===== アイテム関連 =====
 
 function isItemAvailableOnSR(item) {
-  // サモリフ（マップ11）対応かどうか
   const mapsOk = !item.maps || item.maps["11"] !== false;
-  // CLASSIC モード（サモリフ）対応かどうか
+
   const modesOk =
     !item.modes ||
     item.modes.length === 0 ||
     item.modes.includes("CLASSIC");
+
   return mapsOk && modesOk;
 }
 
@@ -393,9 +397,8 @@ function isCompletedItem(item) {
 
   if (item.gold && item.gold.purchasable === false) return false;
 
-  // 消費アイテム（エリクサー、トリンケットなど）は除外
-  if (item.consumed === true) return false;
   const tags = item.tags || [];
+
   if (
     tags.includes("Consumable") ||
     tags.includes("Trinket") ||
@@ -405,6 +408,27 @@ function isCompletedItem(item) {
   }
 
   if (Array.isArray(item.into) && item.into.length > 0) return false;
+
+  // オーン強化・イベント専用など
+  if (
+    item.requiredAlly ||
+    item.requiredChampion ||
+    item.requiredBuffCurrencyName ||
+    item.requiredSpellName ||
+    item.specialRecipe ||
+    item.specialRecipeItem
+  ) {
+    return false;
+  }
+
+  // 名前でのブラックリスト
+  if (item.name) {
+    const lowerName = item.name.toLowerCase();
+    const isExcludedByName = EXCLUDED_ITEM_NAME_KEYWORDS.some((kw) =>
+      lowerName.includes(kw.toLowerCase())
+    );
+    if (isExcludedByName) return false;
+  }
 
   return true;
 }
