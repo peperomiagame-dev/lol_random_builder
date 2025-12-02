@@ -491,8 +491,8 @@ body {
 /* ===== ルーン（コンパクト化） ===== */
 
 .rune-style-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 16px;
   padding-bottom: 12px;
