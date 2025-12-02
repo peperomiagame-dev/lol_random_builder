@@ -101,7 +101,7 @@ let itemsData = null;
 let runesData = null;
 
 let selectedChampionId = null;
-let isRandomChampion = false;
+let isRandomChampion = true;
 
 // 現在のビルド結果を保持
 let currentBuildResult = null;
@@ -148,7 +148,7 @@ function applyTranslations() {
     if (!key) return;
     el.textContent = t(key);
   });
-  
+
   // プレースホルダーなども更新
   const select = document.getElementById("championSelect");
   if (select && select.options.length > 0 && select.options[0].value === "") {
@@ -159,14 +159,14 @@ function applyTranslations() {
 function showStatus(key) {
   const el = document.getElementById("statusText");
   if (!el) return;
-  
+
   // ローディング中はアニメーションクラスを追加
   if (key === "msg_loading" || key === "msg_generating") {
     el.classList.add("loading");
   } else {
     el.classList.remove("loading");
   }
-  
+
   el.textContent = t(key);
 }
 
@@ -272,10 +272,10 @@ async function loadDataDragonData() {
 
     populateChampionUI();
     showStatus("msg_ready");
-    
+
     // URLパラメータがあればビルドを復元
     checkUrlParams();
-    
+
   } catch (err) {
     console.error("Failed to load Data Dragon data:", err);
     showStatus("msg_error");
@@ -609,7 +609,7 @@ function pickRandomRunesByBuildType(buildType) {
   const keystoneSlot = primaryStyle.slots[0];
   const keystone =
     keystoneSlot.runes[
-      Math.floor(Math.random() * keystoneSlot.runes.length)
+    Math.floor(Math.random() * keystoneSlot.runes.length)
     ];
 
   const primaryRunes = [];
@@ -812,12 +812,12 @@ function saveToHistory(build) {
     timestamp: Date.now(),
     build: build
   });
-  
+
   // 最大10件
   if (history.length > 10) {
     history.pop();
   }
-  
+
   localStorage.setItem(STORAGE_HISTORY_KEY, JSON.stringify(history));
 }
 
@@ -825,21 +825,21 @@ function renderHistoryList() {
   const listEl = document.getElementById("historyList");
   const emptyEl = document.getElementById("historyEmpty");
   if (!listEl) return;
-  
+
   const history = getHistory();
   listEl.innerHTML = "";
-  
+
   if (history.length === 0) {
     if (emptyEl) emptyEl.style.display = "block";
     return;
   }
-  
+
   if (emptyEl) emptyEl.style.display = "none";
-  
+
   history.forEach((entry, index) => {
     const build = entry.build;
     const date = new Date(entry.timestamp).toLocaleString();
-    
+
     const row = document.createElement("div");
     row.className = "history-item";
     row.style.cssText = `
@@ -854,76 +854,76 @@ function renderHistoryList() {
       cursor: pointer;
       transition: all 0.2s;
     `;
-    
+
     row.addEventListener("mouseover", () => {
       row.style.background = "rgba(139, 92, 246, 0.1)";
     });
     row.addEventListener("mouseout", () => {
       row.style.background = "rgba(17, 24, 39, 0.6)";
     });
-    
+
     row.addEventListener("click", () => {
       restoreBuild(build);
       closeHistoryModal();
     });
-    
+
     // チャンピオンアイコン
     const champImg = document.createElement("img");
     champImg.src = `${DD_IMG_BASE}/champion/${build.champion.image.full}`;
     champImg.style.cssText = "width: 48px; height: 48px; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.5);";
-    
+
     // 情報
     const info = document.createElement("div");
     info.style.flex = "1";
-    
+
     const title = document.createElement("div");
     title.textContent = `${build.champion.name} (${t("build_type_" + build.buildType)})`;
     title.style.fontWeight = "bold";
     title.style.color = "#e0e7ff";
-    
+
     const time = document.createElement("div");
     time.textContent = date;
     time.style.fontSize = "0.8rem";
     time.style.color = "#9ca3af";
-    
+
     info.appendChild(title);
     info.appendChild(time);
-    
+
     // アイテムプレビュー（最初の3つ）
     const itemsPreview = document.createElement("div");
     itemsPreview.style.display = "flex";
     itemsPreview.style.gap = "4px";
-    
+
     build.items.slice(0, 3).forEach(item => {
       const iImg = document.createElement("img");
       iImg.src = `${DD_IMG_BASE}/item/${item.image.full}`;
       iImg.style.cssText = "width: 32px; height: 32px; border-radius: 6px; border: 1px solid rgba(139, 92, 246, 0.3);";
       itemsPreview.appendChild(iImg);
     });
-    
+
     row.appendChild(champImg);
     row.appendChild(info);
     row.appendChild(itemsPreview);
-    
+
     listEl.appendChild(row);
   });
 }
 
 function restoreBuild(build) {
   currentBuildResult = build;
-  
+
   selectedChampionId = build.champion.id;
   updateChampionButtonLabel(build.champion.name);
-  
+
   renderChampionResult(build.champion);
   renderItems(build.items);
   renderRunes(build.runes);
-  
+
   const buildTypeSelect = document.getElementById("buildTypeSelect");
   if (buildTypeSelect) {
     buildTypeSelect.value = build.buildType;
   }
-  
+
   showStatus("msg_ready");
 }
 
@@ -931,7 +931,7 @@ function restoreBuild(build) {
 
 function copyBuildToClipboard() {
   if (!currentBuildResult) return;
-  
+
   const b = currentBuildResult;
   const lines = [];
   lines.push(`【${b.champion.name} - ${t("build_type_" + b.buildType)} Build】`);
@@ -944,9 +944,9 @@ function copyBuildToClipboard() {
   lines.push(`Secondary: ${b.runes.secondaryStyle.name}`);
   lines.push("");
   lines.push(`Generated by LoL Random Builder`);
-  
+
   const text = lines.join("\n");
-  
+
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById("btnCopyBuild");
     const originalText = btn.textContent;
@@ -961,20 +961,20 @@ function copyBuildToClipboard() {
 
 function generateShareUrl() {
   if (!currentBuildResult) return window.location.href;
-  
+
   const b = currentBuildResult;
-  
+
   // URLパラメータを作成
   // c: championId
   // b: buildType
   // i: itemIds (comma separated)
   // r: runeIds (primaryStyle, secondaryStyle, keystone, ...runes)
-  
+
   const params = new URLSearchParams();
   params.set("c", b.champion.id);
   params.set("t", b.buildType);
   params.set("i", b.items.map(i => i.id).join(","));
-  
+
   // ルーン情報のシリアライズは少し複雑なので簡略化（スタイルとキーストーンだけなど）
   // ここでは完全再現のために主要IDを保存
   const runeIds = [
@@ -983,16 +983,16 @@ function generateShareUrl() {
     b.runes.keystone.id
   ];
   params.set("r", runeIds.join(","));
-  
+
   const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
   return url;
 }
 
 function shareBuild() {
   if (!currentBuildResult) return;
-  
+
   const url = generateShareUrl();
-  
+
   navigator.clipboard.writeText(url).then(() => {
     const btn = document.getElementById("btnShareBuild");
     const originalText = btn.textContent;
@@ -1010,28 +1010,28 @@ function checkUrlParams() {
   const cId = params.get("c");
   const type = params.get("t");
   const iIds = params.get("i");
-  
+
   if (cId && type && iIds && championsData && itemsData && runesData) {
     // データを復元して表示
     const champ = getChampionById(cId);
     if (!champ) return;
-    
+
     const itemIds = iIds.split(",");
     const items = itemIds.map(id => itemsData.data[id]).filter(Boolean);
-    
+
     // ルーンはランダム生成し直す（IDからの完全復元は複雑なため簡易実装）
     // 本来はパラメータから復元すべきだが、今回は簡易的にタイプから再生成
     const runes = pickRandomRunesByBuildType(type);
-    
+
     const build = {
       champion: champ,
       items: items,
       runes: runes,
       buildType: type
     };
-    
+
     restoreBuild(build);
-    
+
     // URLをクリーンにする
     window.history.replaceState({}, document.title, window.location.pathname);
   }
@@ -1058,7 +1058,7 @@ function setupControls() {
   const btnCloseChampionModal = document.getElementById("btnCloseChampionModal");
   const backdrop = document.getElementById("championModalBackdrop");
   const btnRandomToggle = document.getElementById("btnRandomToggle");
-  
+
   // 新機能ボタン
   const btnCopy = document.getElementById("btnCopyBuild");
   const btnShare = document.getElementById("btnShareBuild");
@@ -1103,23 +1103,23 @@ function setupControls() {
       setRandomChampionMode(!isRandomChampion);
     });
   }
-  
+
   if (btnCopy) {
     btnCopy.addEventListener("click", copyBuildToClipboard);
   }
-  
+
   if (btnShare) {
     btnShare.addEventListener("click", shareBuild);
   }
-  
+
   if (btnHistory) {
     btnHistory.addEventListener("click", openHistoryModal);
   }
-  
+
   if (btnCloseHistory) {
     btnCloseHistory.addEventListener("click", closeHistoryModal);
   }
-  
+
   if (historyBackdrop) {
     historyBackdrop.addEventListener("click", closeHistoryModal);
   }
@@ -1162,7 +1162,7 @@ function generateBuild() {
   renderRunes(runePage);
 
   showStatus("msg_ready");
-  
+
   // 結果を保存
   currentBuildResult = {
     champion: champ,
@@ -1170,7 +1170,7 @@ function generateBuild() {
     runes: runePage,
     buildType: buildType
   };
-  
+
   // 履歴に追加
   saveToHistory(currentBuildResult);
 }
@@ -1182,7 +1182,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupLangButtons();
   setupControls();
 
-  setRandomChampionMode(false);
+  setRandomChampionMode(true);
 
   loadLanguage(currentLang).then(() => {
     loadDataDragonData();

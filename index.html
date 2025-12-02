@@ -101,9 +101,9 @@
       <section class="panel panel-result">
         <h2 class="panel-title" data-i18n="result_title">結果</h2>
 
-        <!-- 左：チャンプ＋ルーン／右：ビルド -->
+        <!-- 3カラム：チャンプ / アイテム / ルーン -->
         <div class="result-main-grid">
-          <!-- 左カラム：チャンピオン + ルーン -->
+          <!-- 左：チャンピオン -->
           <div class="result-left">
             <div class="result-block">
               <h3 class="result-title" data-i18n="result_champion">
@@ -111,17 +111,10 @@
               </h3>
               <div class="result-body result-champion-body" id="resultChampion"></div>
             </div>
-
-            <div class="result-block">
-              <h3 class="result-title" data-i18n="result_runes">
-                ルーン
-              </h3>
-              <div class="result-body result-runes-body" id="resultRunes"></div>
-            </div>
           </div>
 
-          <!-- 右カラム：ビルド（アイテム1列） -->
-          <div class="result-right">
+          <!-- 中：アイテム -->
+          <div class="result-center">
             <div class="result-block">
               <h3 class="result-title" data-i18n="result_items">
                 アイテム
@@ -129,6 +122,16 @@
               <div class="result-body result-items-body">
                 <ul id="resultItems" class="result-items"></ul>
               </div>
+            </div>
+          </div>
+
+          <!-- 右：ルーン -->
+          <div class="result-right">
+            <div class="result-block">
+              <h3 class="result-title" data-i18n="result_runes">
+                ルーン
+              </h3>
+              <div class="result-body result-runes-body" id="resultRunes"></div>
             </div>
           </div>
         </div>
