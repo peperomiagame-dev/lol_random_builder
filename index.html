@@ -1,195 +1,207 @@
 <!doctype html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8">
-    <title>LoL ビルドランダムビルダー</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="styles/style.css">
-  </head>
-  <body>
-    <!-- ヘッダー -->
-    <header class="site-header">
-      <div class="container header-inner">
-        <h1 class="app-title" data-i18n="app_title">
-          LoL ビルドランダムビルダー
-        </h1>
-        <div class="lang-switcher">
-          <button class="lang-btn" data-lang="en">EN</button>
-          <button class="lang-btn" data-lang="ja">日本語</button>
-          <button class="lang-btn" data-lang="ko">한국어</button>
-        </div>
+
+<head>
+  <meta charset="utf-8">
+  <title>LoL ランダムビルドジェネレーター | League of Legends Build Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="League of Legends（LoL）のランダムビルドを生成するツール。チャンピオン、アイテム、ルーンをランダムに組み合わせて楽しいビルドを作成。">
+  <meta name="keywords" content="LoL, League of Legends, ビルド, ランダム, チャンピオン, アイテム, ルーン, ゲーム">
+  <meta name="author" content="LoL Random Builder">
+
+  <!-- OGP -->
+  <meta property="og:title" content="LoL ランダムビルドジェネレーター">
+  <meta property="og:description" content="League of Legendsのランダムビルドを生成。遊び用の面白いビルドを簡単に作成できます。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://your-domain.com">
+  <meta property="og:image" content="https://your-domain.com/og-image.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LoL ランダムビルドジェネレーター">
+  <meta name="twitter:description" content="League of Legendsのランダムビルドを生成。遊び用の面白いビルドを簡単に作成できます。">
+  <meta name="twitter:image" content="https://your-domain.com/og-image.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<body>
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1 class="app-title" data-i18n="app_title">
+        LoL ビルドランダムビルダー
+      </h1>
+      <div class="lang-switcher">
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ja">日本語</button>
+        <button class="lang-btn" data-lang="ko">한국어</button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- メイン -->
-    <main class="site-main">
-      <div class="container main-stack">
-        <!-- ===== コントロール（上・1列） ===== -->
-        <section class="panel panel-controls">
-          <h2 class="panel-title" data-i18n="controls_title">コントロール</h2>
+  <!-- メイン -->
+  <main class="site-main">
+    <div class="container main-stack">
+      <!-- ===== コントロール（上・1列） ===== -->
+      <section class="panel panel-controls">
+        <h2 class="panel-title" data-i18n="controls_title">コントロール</h2>
 
-          <div class="controls-row">
-            <!-- チャンピオン選択（押したらモーダル。選択後はチャンプ名表示） -->
-            <button
-              id="btnOpenChampionModal"
-              type="button"
-              class="btn secondary control-champion-btn"
-              data-i18n="btn_open_champion_picker"
-            >
-              チャンピオンを選択
-            </button>
+        <div class="controls-row">
+          <!-- チャンピオン選択（押したらモーダル。選択後はチャンプ名表示） -->
+          <button id="btnOpenChampionModal" type="button" class="btn secondary control-champion-btn"
+            data-i18n="btn_open_champion_picker">
+            チャンピオンを選択
+          </button>
 
-            <!-- ビルド方針（ラベル無し） -->
-            <select
-              id="buildTypeSelect"
-              class="select control-buildtype"
-            >
-              <option value="ap" data-i18n="build_type_ap">
-                AP（アビリティパワー）
-              </option>
-              <option value="ad" data-i18n="build_type_ad">
-                AD（物理攻撃）
-              </option>
-              <option value="tank" data-i18n="build_type_tank">
-                タンク
-              </option>
-              <option value="bruiser" data-i18n="build_type_bruiser">
-                ブルーザー
-              </option>
-              <option value="random" data-i18n="build_type_random">
-                ランダム
-              </option>
-              <option value="chaos" data-i18n="build_type_chaos">
-                カオス
-              </option>
-            </select>
+          <!-- ビルド方針（ラベル無し） -->
+          <select id="buildTypeSelect" class="select control-buildtype">
+            <option value="ap" data-i18n="build_type_ap">
+              AP（アビリティパワー）
+            </option>
+            <option value="ad" data-i18n="build_type_ad">
+              AD（物理攻撃）
+            </option>
+            <option value="tank" data-i18n="build_type_tank">
+              タンク
+            </option>
+            <option value="bruiser" data-i18n="build_type_bruiser">
+              ブルーザー
+            </option>
+            <option value="random" data-i18n="build_type_random">
+              ランダム
+            </option>
+            <option value="chaos" data-i18n="build_type_chaos">
+              カオス
+            </option>
+          </select>
 
-            <!-- チャンピオンをランダム（トグル） -->
-            <button
-              id="btnRandomToggle"
-              type="button"
-              class="btn ghost control-random-toggle"
-            >
-              チャンピオンランダム: OFF
-            </button>
+          <!-- チャンピオンをランダム（トグル） -->
+          <button id="btnRandomToggle" type="button" class="btn ghost control-random-toggle">
+            チャンピオンランダム: OFF
+          </button>
 
-            <!-- ビルド生成 -->
-            <button
-              id="btnGenerate"
-              type="button"
-              class="btn primary control-generate-btn"
-              data-i18n="btn_generate"
-            >
-              ビルドを生成
-            </button>
-          </div>
-
-          <!-- ステータス -->
-          <div
-            id="statusText"
-            class="status-text"
-            data-i18n="msg_ready"
-          >
-            準備OK。「ビルドを生成」を押すとランダムビルドが出ます。
-          </div>
-        </section>
-
-        <!-- ===== 結果 ===== -->
-        <section class="panel panel-result">
-          <h2 class="panel-title" data-i18n="result_title">結果</h2>
-
-          <!-- 左：チャンプ＋ルーン／右：ビルド -->
-          <div class="result-main-grid">
-            <!-- 左カラム：チャンピオン + ルーン -->
-            <div class="result-left">
-              <div class="result-block">
-                <h3 class="result-title" data-i18n="result_champion">
-                  チャンピオン
-                </h3>
-                <div
-                  class="result-body result-champion-body"
-                  id="resultChampion"
-                ></div>
-              </div>
-
-              <div class="result-block">
-                <h3 class="result-title" data-i18n="result_runes">
-                  ルーン
-                </h3>
-                <div
-                  class="result-body result-runes-body"
-                  id="resultRunes"
-                ></div>
-              </div>
-            </div>
-
-            <!-- 右カラム：ビルド（アイテム1列） -->
-            <div class="result-right">
-              <div class="result-block">
-                <h3 class="result-title" data-i18n="result_items">
-                  アイテム
-                </h3>
-                <div class="result-body result-items-body">
-                  <ul id="resultItems" class="result-items"></ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 説明＋広告枠 -->
-        <footer class="site-footer">
-          <div class="footer-inner">
-            <div data-i18n="footer_description">
-              ランク向けではなく、遊び用の LoL ビルドランダムビルダーです。
-            </div>
-            <div class="footer-actions">
-              <button
-                type="button"
-                class="btn secondary"
-                disabled
-                data-i18n="btn_share_coming_soon"
-              >
-                シェア（準備中）
-              </button>
-            </div>
-            <div class="ad-slot" data-i18n="ad_slot_placeholder">
-              広告枠（あとで差し込み予定）
-            </div>
-          </div>
-        </footer>
-      </div>
-    </main>
-
-    <!-- ========= チャンピオン選択モーダル ========= -->
-    <div id="championModal" class="modal hidden">
-      <div class="modal-backdrop" id="championModalBackdrop"></div>
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 data-i18n="modal_champion_title">チャンピオンを選択</h2>
-          <button
-            id="btnCloseChampionModal"
-            type="button"
-            class="modal-close-btn"
-          >
-            ×
+          <!-- ビルド生成 -->
+          <button id="btnGenerate" type="button" class="btn primary control-generate-btn" data-i18n="btn_generate">
+            ビルドを生成
           </button>
         </div>
-        <div class="modal-body">
-          <!-- セレクトはロジック用に残す（非表示） -->
-          <select
-            id="championSelect"
-            class="select hidden-select"
-            aria-hidden="true"
-          ></select>
 
-          <div id="championGrid" class="champion-grid">
-            <!-- JS でカードを並べる -->
+        <!-- ステータス -->
+        <div id="statusText" class="status-text" data-i18n="msg_ready">
+          準備OK。「ビルドを生成」を押すとランダムビルドが出ます。
+        </div>
+      </section>
+
+      <!-- ===== 結果 ===== -->
+      <section class="panel panel-result">
+        <h2 class="panel-title" data-i18n="result_title">結果</h2>
+
+        <!-- 左：チャンプ＋ルーン／右：ビルド -->
+        <div class="result-main-grid">
+          <!-- 左カラム：チャンピオン + ルーン -->
+          <div class="result-left">
+            <div class="result-block">
+              <h3 class="result-title" data-i18n="result_champion">
+                チャンピオン
+              </h3>
+              <div class="result-body result-champion-body" id="resultChampion"></div>
+            </div>
+
+            <div class="result-block">
+              <h3 class="result-title" data-i18n="result_runes">
+                ルーン
+              </h3>
+              <div class="result-body result-runes-body" id="resultRunes"></div>
+            </div>
           </div>
+
+          <!-- 右カラム：ビルド（アイテム1列） -->
+          <div class="result-right">
+            <div class="result-block">
+              <h3 class="result-title" data-i18n="result_items">
+                アイテム
+              </h3>
+              <div class="result-body result-items-body">
+                <ul id="resultItems" class="result-items"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 説明＋広告枠 -->
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div data-i18n="footer_description">
+            ランク向けではなく、遊び用の LoL ランダムビルドジェネレーターです。
+          </div>
+          <div class="footer-actions">
+            <button id="btnCopyBuild" type="button" class="btn secondary" data-i18n="btn_copy_build">
+              📋 ビルドをコピー
+            </button>
+            <button id="btnShareBuild" type="button" class="btn secondary" data-i18n="btn_share_build">
+              🔗 URLで共有
+            </button>
+            <button id="btnShowHistory" type="button" class="btn ghost" data-i18n="btn_show_history">
+              📜 履歴を表示
+            </button>
+          </div>
+          <div class="ad-slot" data-i18n="ad_slot_placeholder">
+            広告枠（あとで差し込み予定）
+          </div>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <!-- ========= チャンピオン選択モーダル ========= -->
+  <div id="championModal" class="modal hidden">
+    <div class="modal-backdrop" id="championModalBackdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="modal_champion_title">チャンピオンを選択</h2>
+        <button id="btnCloseChampionModal" type="button" class="modal-close-btn">
+          ×
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- セレクトはロジック用に残す（非表示） -->
+        <select id="championSelect" class="select hidden-select" aria-hidden="true"></select>
+
+        <div id="championGrid" class="champion-grid">
+          <!-- JS でカードを並べる -->
         </div>
       </div>
     </div>
+  </div>
 
-    <script src="scripts/main.js"></script>
-  </body>
+  <!-- ========= 履歴モーダル ========= -->
+  <div id="historyModal" class="modal hidden">
+    <div class="modal-backdrop" id="historyModalBackdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="modal_history_title">ビルド履歴</h2>
+        <button id="btnCloseHistoryModal" type="button" class="modal-close-btn">
+          ×
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="historyList" class="history-list">
+          <!-- JSで履歴を表示 -->
+        </div>
+        <div class="history-empty" id="historyEmpty" style="display: none;">
+          <p data-i18n="msg_no_history">まだ履歴がありません</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/main.js"></script>
+</body>
+
 </html>

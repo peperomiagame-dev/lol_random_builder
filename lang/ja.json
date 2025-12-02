@@ -1,5 +1,5 @@
 {
-  "app_title": "LoL ビルドランダムビルダー",
+  "app_title": "LoL ランダムビルドジェネレーター",
   "controls_title": "コントロール",
   "result_title": "結果",
 
@@ -9,6 +9,9 @@
   "btn_open_champion_picker": "チャンピオンを選択",
   "btn_random_champion": "チャンピオンをランダム",
   "btn_generate": "ビルドを生成",
+  "btn_copy_build": "📋 ビルドをコピー",
+  "btn_share_build": "🔗 URLで共有",
+  "btn_show_history": "📜 履歴を表示",
 
   "champion_placeholder": "チャンピオンを選択",
 
@@ -27,12 +30,16 @@
   "msg_loading": "データを読み込み中…",
   "msg_generating": "ビルドを生成中…",
   "msg_error": "データの読み込みに失敗しました。時間をおいて再度お試しください。",
+  "msg_no_history": "まだ履歴がありません",
 
-  "footer_description": "ランク向けではなく、遊び用の LoL ビルドランダムビルダーです。",
+  "footer_description": "ランク向けではなく、遊び用の LoL ランダムビルドジェネレーターです。",
   "btn_share_coming_soon": "シェア（準備中）",
-  "ad_slot_placeholder": "広告枠（あとで差し込み予定）",
+  "ad_slot_placeholder": "広告枠",
 
   "modal_champion_title": "チャンピオンを選択",
+  "modal_history_title": "ビルド履歴",
+  "toggle_random_on": "チャンピオンランダム: ON",
+  "toggle_random_off": "チャンピオンランダム: OFF",
 
   "shard_offense_adaptive": "攻撃：アダプティブフォース",
   "shard_offense_attack_speed": "攻撃：攻撃速度",
