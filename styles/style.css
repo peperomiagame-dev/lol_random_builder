@@ -488,58 +488,68 @@ body {
   line-height: 1.3;
 }
 
-/* ===== ルーン（縦並び） ===== */
+/* ===== ルーン（コンパクト化） ===== */
 
 .rune-style-row {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 .rune-style-label {
-  font-size: 1rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .runes-two-col {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* 2列に変更 */
+  gap: 12px;
 }
 
 .rune-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  /* ギャップ縮小 */
 }
 
 .rune-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 4px 8px;
   border-radius: 8px;
   background: rgba(17, 24, 39, 0.3);
+  min-height: 40px;
 }
 
 .rune-icon {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  /* 少し小さく */
+  height: 32px;
 }
 
 .rune-name {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  line-height: 1.2;
 }
 
 .rune-shards-row {
-  margin-top: 20px;
-  padding-top: 16px;
+  margin-top: 16px;
+  padding-top: 12px;
   border-top: 1px solid rgba(139, 92, 246, 0.3);
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  /* 横並びに戻す */
+  flex-wrap: wrap;
+  gap: 8px 16px;
 }
 
 .rune-shard {
@@ -547,11 +557,15 @@ body {
   align-items: center;
   gap: 6px;
   color: #e0e7ff;
+  font-size: 0.85rem;
+  background: rgba(17, 24, 39, 0.3);
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 .rune-shard .rune-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 /* プレースホルダー状態 */
