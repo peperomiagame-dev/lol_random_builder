@@ -34,7 +34,11 @@ const EXCLUDED_ITEM_NAME_KEYWORDS = [
   "天帝の剣",              // JP 名
   "Emperor's Sword",       // EN 想定
   "Sword of the Emperor",  // EN 想定
-  "肉喰らう者"             // ← 新しく追加（アリーナ系アイテム）
+  "肉喰らう者",            // アリーナ
+  "花咲く夜明けの剣",      // アリーナ
+  "Sword of the Blossoming Dawn",
+  "Wooglet's Witchcap",    // TT/Arena
+  "ウーグレット ウィッチキャップ"
 ];
 
 // サポートアイテム（最終進化形）
@@ -715,46 +719,64 @@ function renderRunes(runePage) {
   styleRow.appendChild(secondaryLabel);
   container.appendChild(styleRow);
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "runes-two-col";
+  // 行ベースでグリッドを作成（位置ズレ防止のため）
+  const gridContainer = document.createElement("div");
+  gridContainer.className = "runes-grid-container";
+  gridContainer.style.display = "flex";
+  gridContainer.style.flexDirection = "column";
+  gridContainer.style.gap = "8px";
 
-  const primaryCol = document.createElement("div");
-  primaryCol.className = "rune-col";
+  // メインパスのルーンリスト（キーストーン + 3つ）
+  const mainRunesList = [keystone, ...primaryRunes];
 
-  const keystoneRow = document.createElement("div");
-  keystoneRow.className = "rune-row";
-  keystoneRow.innerHTML = `
-    <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${keystone.icon}" alt="${keystone.name}">
-    <span>${keystone.name}</span>
-  `;
-  primaryCol.appendChild(keystoneRow);
+  // サブパスのルーンリスト（2つ）。表示位置を合わせるため、先頭にnullを入れて2行目・3行目に表示させる
+  // 行1: キーストーン / 空
+  // 行2: メイン1 / サブ1
+  // 行3: メイン2 / サブ2
+  // 行4: メイン3 / 空
+  const subRunesList = [null, ...secondaryRunes, null];
 
-  primaryRunes.forEach((r) => {
+  // 4行分生成
+  for (let i = 0; i < 4; i++) {
     const row = document.createElement("div");
-    row.className = "rune-row";
-    row.innerHTML = `
-      <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${r.icon}" alt="${r.name}">
-      <span>${r.name}</span>
-    `;
-    primaryCol.appendChild(row);
-  });
+    row.className = "rune-grid-row";
+    row.style.display = "grid";
+    row.style.gridTemplateColumns = "1fr 1fr";
+    row.style.gap = "12px";
+    row.style.alignItems = "center";
 
-  const secondaryCol = document.createElement("div");
-  secondaryCol.className = "rune-col";
+    // 左側（メイン）
+    const leftCell = document.createElement("div");
+    leftCell.className = "rune-cell";
+    const mainRune = mainRunesList[i];
+    if (mainRune) {
+      leftCell.innerHTML = `
+        <div class="rune-row" style="width: 100%;">
+          <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${mainRune.icon}" alt="${mainRune.name}">
+          <span class="rune-name">${mainRune.name}</span>
+        </div>
+      `;
+    }
+    row.appendChild(leftCell);
 
-  secondaryRunes.forEach((r) => {
-    const row = document.createElement("div");
-    row.className = "rune-row";
-    row.innerHTML = `
-      <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${r.icon}" alt="${r.name}">
-      <span>${r.name}</span>
-    `;
-    secondaryCol.appendChild(row);
-  });
+    // 右側（サブ）
+    const rightCell = document.createElement("div");
+    rightCell.className = "rune-cell";
+    const subRune = subRunesList[i];
+    if (subRune) {
+      rightCell.innerHTML = `
+        <div class="rune-row" style="width: 100%;">
+          <img class="rune-icon" src="${DD_IMG_BASE_GENERAL}/${subRune.icon}" alt="${subRune.name}">
+          <span class="rune-name">${subRune.name}</span>
+        </div>
+      `;
+    }
+    row.appendChild(rightCell);
 
-  wrapper.appendChild(primaryCol);
-  wrapper.appendChild(secondaryCol);
-  container.appendChild(wrapper);
+    gridContainer.appendChild(row);
+  }
+
+  container.appendChild(gridContainer);
 
   const shardsRow = document.createElement("div");
   shardsRow.className = "rune-shards-row";
