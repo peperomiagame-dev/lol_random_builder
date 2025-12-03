@@ -687,7 +687,8 @@ select option {
 .champion-card-btn.is-selected {
   border-color: #34d399;
   background: rgba(16, 185, 129, 0.15);
-  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.6), 0 4px 16px rgba(16, 185, 129, 0.4);
+  box-shadow: none;
+  /* 削除 */
 }
 
 .champion-card-icon {
@@ -744,7 +745,8 @@ select option {
   /* グラデーション削除 */
   border-radius: 20px;
   border: 1px solid rgba(139, 92, 246, 0.5);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: none;
+  /* 削除 */
   /* シャドウ軽量化 */
   padding: 16px 20px 20px;
   display: flex;

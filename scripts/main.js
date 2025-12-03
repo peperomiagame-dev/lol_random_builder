@@ -38,7 +38,17 @@ const EXCLUDED_ITEM_NAME_KEYWORDS = [
   "花咲く夜明けの剣",      // アリーナ
   "Sword of the Blossoming Dawn",
   "Wooglet's Witchcap",    // TT/Arena
-  "ウーグレット ウィッチキャップ"
+  "ウーグレット ウィッチキャップ",
+  "カル",                  // Cull (初期アイテム/売却前提)
+  "Cull",
+  "ギャンブラーの剣",      // Gambler's Blade (アリーナ/特殊モード)
+  "Gambler's Blade",
+  "スペクトラル カトラス", // Spectral Cutlass (特殊モード)
+  "Spectral Cutlass",
+  "ムーンフレア スペルブレード", // Moonflair Spellblade
+  "Moonflair Spellblade",
+  "シーカー アームガード", // 中間素材だが念のため（完成品判定で弾かれるはずだが）
+  "Seeker's Armguard"
 ];
 
 // サポートアイテム（最終進化形）
@@ -391,36 +401,34 @@ function populateChampionUI() {
   }
 
   if (grid) {
-    grid.innerHTML = "";
-    const fragment = document.createDocumentFragment();
-
-    entries.forEach((champ) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "champion-card-btn";
-      btn.dataset.champId = champ.id;
-
-      const img = document.createElement("img");
-      img.className = "champion-card-icon";
-      img.src = `${DD_IMG_BASE}/champion/${champ.image.full}`;
-      img.alt = champ.name;
-      img.loading = "lazy"; // 遅延読み込み
-
-      const nameEl = document.createElement("div");
-      nameEl.className = "champion-card-name";
-      nameEl.textContent = champ.name;
-
-      btn.appendChild(img);
-      btn.appendChild(nameEl);
-
-      btn.addEventListener("click", () => {
-        selectChampion(champ.id, { closeModal: true });
-      });
-
-      fragment.appendChild(btn);
+    // HTML文字列構築による高速化
+    const htmlParts = entries.map((champ) => {
+      return `
+        <button type="button" class="champion-card-btn" data-champ-id="${champ.id}">
+          <img class="champion-card-icon" src="${DD_IMG_BASE}/champion/${champ.image.full}" alt="${champ.name}" loading="lazy">
+          <div class="champion-card-name">${champ.name}</div>
+        </button>
+      `;
     });
+    grid.innerHTML = htmlParts.join("");
 
-    grid.appendChild(fragment);
+    // イベント委譲 (Event Delegation)
+    // 既存のリスナーがあれば削除すべきだが、DOMContentLoadedで一度呼ばれるだけなら問題ない
+    // 再描画のたびにリスナーが増えないように注意が必要だが、grid.innerHTMLで中身は消える
+    // grid自体のリスナーは重複する可能性があるので、属性でチェックするか、
+    // あるいはこの関数外で一度だけ設定するのがベストだが、ここでは簡易的にチェック
+    if (!grid.hasAttribute("data-listener-attached")) {
+      grid.addEventListener("click", (e) => {
+        const btn = e.target.closest(".champion-card-btn");
+        if (btn) {
+          const champId = btn.dataset.champId;
+          if (champId) {
+            selectChampion(champId, { closeModal: true });
+          }
+        }
+      });
+      grid.setAttribute("data-listener-attached", "true");
+    }
   }
 
   applyTranslations();
