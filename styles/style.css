@@ -507,11 +507,11 @@ body {
   align-items: center;
   gap: 8px;
   justify-content: flex-start;
+  padding-left: 8px;
+  /* 下のrune-rowのpadding(8px)に合わせる */
 }
 
-.rune-style-label:nth-child(2) {
-  padding-left: 4px;
-}
+/* nth-child(2)の個別指定は削除（グリッドで揃うため不要、かつpadding統一のため） */
 
 /* ドロップダウンのオプションスタイル修正 */
 select option {
