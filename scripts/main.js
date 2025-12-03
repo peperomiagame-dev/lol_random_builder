@@ -670,18 +670,24 @@ function showTooltip(item, element) {
   tooltip.classList.remove("hidden");
 }
 
+let tooltipRafId = null;
+
 function moveTooltip(e) {
   const tooltip = document.getElementById("itemTooltip");
   if (!tooltip) return;
 
-  const x = e.pageX + 15;
-  const y = e.pageY + 15;
+  // 既存の予約があればキャンセル（最新のマウス位置だけを反映）
+  if (tooltipRafId) {
+    cancelAnimationFrame(tooltipRafId);
+  }
 
-  // 画面外にはみ出さないように調整（簡易的）
-  // 必要であればウィンドウ幅との比較を追加
-
-  tooltip.style.left = `${x}px`;
-  tooltip.style.top = `${y}px`;
+  tooltipRafId = requestAnimationFrame(() => {
+    const x = e.pageX + 15;
+    const y = e.pageY + 15;
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+    tooltipRafId = null;
+  });
 }
 
 function hideTooltip() {
