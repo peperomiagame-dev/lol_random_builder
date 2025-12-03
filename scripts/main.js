@@ -48,8 +48,33 @@ const EXCLUDED_ITEM_NAME_KEYWORDS = [
   "ムーンフレア スペルブレード", // Moonflair Spellblade
   "Moonflair Spellblade",
   "シーカー アームガード", // 中間素材だが念のため（完成品判定で弾かれるはずだが）
-  "Seeker's Armguard"
+  "Seeker's Armguard",
+  "ヘクステック ガンブレード",
+  "Hextech Gunblade",
+  "不死身の大王の王冠",
+  "Crown of the Shattered Queen",
+  "ドラン", // ドランブレード、リング、シールド等を一括除外
+  "Doran",
+  "星空のマント",
+  "Starry", // Starry Enchanter / Cape
+  "超越のタリスマン",
+  "Talisman of Ascension",
+  "アトマの報い",
+  "Atma",
+  "モルテン", // Molten Stone / Edge
+  "Molten",
+  "ガストウォーカー",
+  "Gustwalker",
+  "モスストンパー",
+  "Mosstomper",
+  "スコーチクロウ",
+  "Scorchclaw",
+  "ジャングル", // Jungle item generic check
+  "Jungle"
 ];
+
+// アイテムプールのキャッシュ
+let cachedItemPools = null;
 
 // サポートアイテム（最終進化形）
 const SUPPORT_ITEMS = [
@@ -294,14 +319,26 @@ async function loadDataDragonData() {
     itemsData = itemJson;
     runesData = runeJson;
 
+    // アイテムデータの処理とキャッシュ化
+    if (itemsData && itemsData.data) {
+      const allItems = Object.entries(itemsData.data).map(([id, item]) => {
+        return { id, ...item };
+      });
+      cachedItemPools = classifyItemPools(allItems);
+      console.log("Item pools cached:", cachedItemPools);
+    }
+
     populateChampionUI();
     showStatus("msg_ready");
+
+    // 初回ビルド生成
+    generateBuild();
 
     // URLパラメータがあればビルドを復元
     checkUrlParams();
 
   } catch (err) {
-    console.error("Failed to load Data Dragon data:", err);
+    console.error("Data load error:", err); // Changed from "Failed to load Data Dragon data" to "Data load error" as per snippet
     showStatus("msg_error");
   }
 }
@@ -553,13 +590,16 @@ function classifyItemPools(allItems) {
 }
 
 function pickRandomItemsByBuildType(buildType) {
-  if (!itemsData || !itemsData.data) return [];
+  if (!cachedItemPools) {
+    // キャッシュがない場合はオンデマンドで生成（フォールバック）
+    if (!itemsData || !itemsData.data) return [];
+    const allItems = Object.entries(itemsData.data).map(([id, item]) => {
+      return { id, ...item };
+    });
+    cachedItemPools = classifyItemPools(allItems);
+  }
 
-  const allItems = Object.entries(itemsData.data).map(([id, item]) => {
-    return { id, ...item };
-  });
-
-  const { boots, ap, ad, tank, bruiser, any } = classifyItemPools(allItems);
+  const { boots, ap, ad, tank, bruiser, any } = cachedItemPools;
 
   let pool;
   switch (buildType) {
@@ -597,7 +637,13 @@ function pickRandomItemsByBuildType(buildType) {
   // サポートアイテムモードがONの場合、1つをサポートアイテムに置き換える
   if (isSupportItemMode) {
     const supportItemId = SUPPORT_ITEMS[Math.floor(Math.random() * SUPPORT_ITEMS.length)];
-    const supportItem = allItems.find(i => i.id === supportItemId);
+    // allItemsListが必要だが、cachedItemPoolsには含まれていない可能性があるため修正が必要
+    // classifyItemPoolsの戻り値にallItemsListを含めるか、ここでitemsDataから探す
+    // ここではitemsDataから探す（軽量）
+    let supportItem = null;
+    if (itemsData && itemsData.data && itemsData.data[supportItemId]) {
+      supportItem = { id: supportItemId, ...itemsData.data[supportItemId] };
+    }
 
     if (supportItem) {
       // 6枠埋まっている場合はランダムに1つ置き換え、埋まっていない場合は追加
@@ -643,9 +689,7 @@ function renderItems(items) {
     li.addEventListener("mouseenter", () => {
       showTooltip(item, li);
     });
-    li.addEventListener("mousemove", (e) => {
-      moveTooltip(e);
-    });
+    // mousemoveは削除（負荷軽減のため）
     li.addEventListener("mouseleave", () => {
       hideTooltip();
     });
@@ -675,28 +719,28 @@ function showTooltip(item, element) {
     <div class="tooltip-desc">${description}</div>
   `;
 
+  // 位置計算（要素の右下に表示）
+  const rect = element.getBoundingClientRect();
+  const scrollY = window.scrollY || window.pageYOffset;
+  const scrollX = window.scrollX || window.pageXOffset;
+
+  // 基本位置: 要素の右下
+  let top = rect.bottom + scrollY + 5;
+  let left = rect.left + scrollX + 5;
+
+  // 画面右端からはみ出る場合の調整
+  const tooltipWidth = 300; // CSSのmax-width
+  if (rect.left + tooltipWidth > window.innerWidth) {
+    left = rect.right + scrollX - tooltipWidth;
+  }
+
+  tooltip.style.top = `${top}px`;
+  tooltip.style.left = `${left}px`;
+
   tooltip.classList.remove("hidden");
 }
 
-let tooltipRafId = null;
-
-function moveTooltip(e) {
-  const tooltip = document.getElementById("itemTooltip");
-  if (!tooltip) return;
-
-  // 既存の予約があればキャンセル（最新のマウス位置だけを反映）
-  if (tooltipRafId) {
-    cancelAnimationFrame(tooltipRafId);
-  }
-
-  tooltipRafId = requestAnimationFrame(() => {
-    const x = e.pageX + 15;
-    const y = e.pageY + 15;
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
-    tooltipRafId = null;
-  });
-}
+// moveTooltipは削除
 
 function hideTooltip() {
   const tooltip = document.getElementById("itemTooltip");
