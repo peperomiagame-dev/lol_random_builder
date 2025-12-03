@@ -392,6 +392,7 @@ function populateChampionUI() {
 
   if (grid) {
     grid.innerHTML = "";
+    const fragment = document.createDocumentFragment();
 
     entries.forEach((champ) => {
       const btn = document.createElement("button");
@@ -403,6 +404,7 @@ function populateChampionUI() {
       img.className = "champion-card-icon";
       img.src = `${DD_IMG_BASE}/champion/${champ.image.full}`;
       img.alt = champ.name;
+      img.loading = "lazy"; // 遅延読み込み
 
       const nameEl = document.createElement("div");
       nameEl.className = "champion-card-name";
@@ -415,8 +417,10 @@ function populateChampionUI() {
         selectChampion(champ.id, { closeModal: true });
       });
 
-      grid.appendChild(btn);
+      fragment.appendChild(btn);
     });
+
+    grid.appendChild(fragment);
   }
 
   applyTranslations();
@@ -652,7 +656,13 @@ function showTooltip(item, element) {
   tooltip.innerHTML = `
     <div class="tooltip-header">
       <span class="tooltip-name">${item.name}</span>
-      <span class="tooltip-cost">🪙 ${cost}</span>
+      <span class="tooltip-cost">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 2px;">
+          <circle cx="12" cy="12" r="10" stroke="#fbbf24" stroke-width="2" fill="none"/>
+          <path d="M12 6v12M6 12h12" stroke="#fbbf24" stroke-width="2"/>
+        </svg>
+        ${cost}
+      </span>
     </div>
     <div class="tooltip-desc">${description}</div>
   `;
