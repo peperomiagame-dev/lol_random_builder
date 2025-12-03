@@ -670,13 +670,18 @@ select option {
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.1s ease, border-color 0.1s ease;
+  transition: background-color 0.1s ease, border-color 0.1s ease;
+  /* transform削除 */
+  content-visibility: auto;
+  /* 画面外のレンダリングスキップ */
+  contain-intrinsic-size: 80px 100px;
+  /* プレースホルダーサイズ指定 */
 }
 
 .champion-card-btn:hover {
   border-color: #a78bfa;
-  background: rgba(139, 92, 246, 0.15);
-  transform: translateY(-1px);
+  background: rgba(139, 92, 246, 0.25);
+  /* transform削除 */
 }
 
 .champion-card-btn.is-selected {
@@ -691,11 +696,13 @@ select option {
   border-radius: 10px;
   object-fit: cover;
   border: 1px solid rgba(139, 92, 246, 0.6);
-  transition: transform 0.1s ease;
+  /* transition削除 */
 }
 
 .champion-card-btn:hover .champion-card-icon {
-  transform: scale(1.05);
+  /* transform削除 */
+  border-color: #c4b5fd;
+  /* 枠線色変更のみ */
 }
 
 .champion-card-name {
