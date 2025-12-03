@@ -670,14 +670,13 @@ select option {
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.1s ease, background-color 0.1s ease, border-color 0.1s ease;
 }
 
 .champion-card-btn:hover {
   border-color: #a78bfa;
   background: rgba(139, 92, 246, 0.15);
-  box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.5), 0 4px 12px rgba(139, 92, 246, 0.3);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .champion-card-btn.is-selected {
@@ -692,12 +691,11 @@ select option {
   border-radius: 10px;
   object-fit: cover;
   border: 1px solid rgba(139, 92, 246, 0.6);
-  transition: all 0.3s ease;
+  transition: transform 0.1s ease;
 }
 
 .champion-card-btn:hover .champion-card-icon {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  transform: scale(1.05);
 }
 
 .champion-card-name {
