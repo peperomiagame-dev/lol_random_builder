@@ -196,28 +196,17 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.1s ease, background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   position: relative;
   overflow: hidden;
+  user-select: none;
 }
 
-.btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+.btn:active {
+  transform: scale(0.96);
 }
 
-.btn:hover::before {
-  width: 300px;
-  height: 300px;
-}
+/* 不要なリップルエフェクト削除 */
 
 .btn.primary {
   background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
@@ -892,4 +881,54 @@ select option {
     margin: 20px;
     max-height: calc(100vh - 40px);
   }
+}
+
+/* ===== ツールチップ ===== */
+.item-tooltip {
+  position: absolute;
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 8px;
+  padding: 12px;
+  max-width: 300px;
+  color: #f3f4f6;
+  font-size: 0.9rem;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  transition: opacity 0.1s ease;
+}
+
+.item-tooltip.hidden {
+  opacity: 0;
+}
+
+.tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 4px;
+}
+
+.tooltip-name {
+  font-weight: bold;
+  color: #a78bfa;
+}
+
+.tooltip-cost {
+  color: #fbbf24;
+  font-size: 0.85rem;
+}
+
+.tooltip-desc {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #d1d5db;
+}
+
+.tooltip-desc b {
+  color: #fff;
 }

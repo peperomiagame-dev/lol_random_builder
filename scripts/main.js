@@ -626,7 +626,58 @@ function renderItems(items) {
     li.appendChild(img);
     li.appendChild(nameEl);
     list.appendChild(li);
+
+    // ツールチップイベント
+    li.addEventListener("mouseenter", () => {
+      showTooltip(item, li);
+    });
+    li.addEventListener("mousemove", (e) => {
+      moveTooltip(e);
+    });
+    li.addEventListener("mouseleave", () => {
+      hideTooltip();
+    });
   });
+}
+
+// ===== ツールチップ制御 =====
+
+function showTooltip(item, element) {
+  const tooltip = document.getElementById("itemTooltip");
+  if (!tooltip) return;
+
+  const cost = item.gold ? item.gold.total : 0;
+  const description = item.description || "";
+
+  tooltip.innerHTML = `
+    <div class="tooltip-header">
+      <span class="tooltip-name">${item.name}</span>
+      <span class="tooltip-cost">🪙 ${cost}</span>
+    </div>
+    <div class="tooltip-desc">${description}</div>
+  `;
+
+  tooltip.classList.remove("hidden");
+}
+
+function moveTooltip(e) {
+  const tooltip = document.getElementById("itemTooltip");
+  if (!tooltip) return;
+
+  const x = e.pageX + 15;
+  const y = e.pageY + 15;
+
+  // 画面外にはみ出さないように調整（簡易的）
+  // 必要であればウィンドウ幅との比較を追加
+
+  tooltip.style.left = `${x}px`;
+  tooltip.style.top = `${y}px`;
+}
+
+function hideTooltip() {
+  const tooltip = document.getElementById("itemTooltip");
+  if (!tooltip) return;
+  tooltip.classList.add("hidden");
 }
 
 // ===== ルーン関連 =====
