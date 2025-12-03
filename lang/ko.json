@@ -32,6 +32,8 @@
   "modal_history_title": "빌드 기록",
   "toggle_random_on": "챔피언 랜덤: ON",
   "toggle_random_off": "챔피언 랜덤: OFF",
+  "toggle_support_on": "서포트 아이템: ON",
+  "toggle_support_off": "서포트 아이템: OFF",
   "shard_offense_adaptive": "공격: 적응형 능력치",
   "shard_offense_attack_speed": "공격: 공격 속도",
   "shard_offense_ability_haste": "공격: 스킬 가속",

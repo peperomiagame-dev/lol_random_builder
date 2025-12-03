@@ -37,6 +37,15 @@ const EXCLUDED_ITEM_NAME_KEYWORDS = [
   "肉喰らう者"             // ← 新しく追加（アリーナ系アイテム）
 ];
 
+// サポートアイテム（最終進化形）
+const SUPPORT_ITEMS = [
+  "3869", // Celestial Opposition
+  "3870", // Dream Maker
+  "3871", // Zaz'Zak's Realmspike
+  "3876", // Solstice Sleigh
+  "3877"  // Bloodsong
+];
+
 // ステータスシャード（StatMods アイコンを直指定）
 const STAT_SHARDS = {
   offense: [
@@ -102,6 +111,7 @@ let runesData = null;
 
 let selectedChampionId = null;
 let isRandomChampion = true;
+let isSupportItemMode = false;
 
 // 現在のビルド結果を保持
 let currentBuildResult = null;
@@ -567,6 +577,23 @@ function pickRandomItemsByBuildType(buildType) {
   const mains = pickRandomDistinct(mainPool, 5);
 
   const combined = uniqueById([...chosenBoots, ...mains]);
+
+  // サポートアイテムモードがONの場合、1つをサポートアイテムに置き換える
+  if (isSupportItemMode) {
+    const supportItemId = SUPPORT_ITEMS[Math.floor(Math.random() * SUPPORT_ITEMS.length)];
+    const supportItem = allItems.find(i => i.id === supportItemId);
+
+    if (supportItem) {
+      // 6枠埋まっている場合はランダムに1つ置き換え、埋まっていない場合は追加
+      if (combined.length >= 6) {
+        const replaceIndex = Math.floor(Math.random() * 6);
+        combined[replaceIndex] = supportItem;
+      } else {
+        combined.push(supportItem);
+      }
+    }
+  }
+
   return combined;
 }
 
@@ -1104,6 +1131,14 @@ function setupControls() {
     });
   }
 
+  // サポートアイテムトグル
+  const btnSupportToggle = document.getElementById("btnSupportToggle");
+  if (btnSupportToggle) {
+    btnSupportToggle.addEventListener("click", () => {
+      toggleSupportItemMode();
+    });
+  }
+
   if (btnCopy) {
     btnCopy.addEventListener("click", copyBuildToClipboard);
   }
@@ -1122,6 +1157,56 @@ function setupControls() {
 
   if (historyBackdrop) {
     historyBackdrop.addEventListener("click", closeHistoryModal);
+  }
+}
+
+function setRandomChampionMode(enabled) {
+  isRandomChampion = enabled;
+  updateToggleButton();
+
+  const pickerBtn = document.getElementById("btnOpenChampionPicker");
+  if (pickerBtn) {
+    if (isRandomChampion) {
+      pickerBtn.disabled = true;
+      pickerBtn.style.opacity = "0.5";
+      selectedChampionId = null;
+      const nameEl = document.getElementById("selectedChampionName");
+      if (nameEl) nameEl.textContent = t("champion_placeholder");
+    } else {
+      pickerBtn.disabled = false;
+      pickerBtn.style.opacity = "1";
+    }
+  }
+}
+
+function toggleSupportItemMode() {
+  isSupportItemMode = !isSupportItemMode;
+  updateToggleButton();
+}
+
+function updateToggleButton() {
+  // チャンピオンランダム
+  const btn = document.getElementById("btnRandomToggle");
+  if (btn) {
+    if (isRandomChampion) {
+      btn.classList.add("active");
+      btn.textContent = t("toggle_random_on");
+    } else {
+      btn.classList.remove("active");
+      btn.textContent = t("toggle_random_off");
+    }
+  }
+
+  // サポートアイテム
+  const btnSupport = document.getElementById("btnSupportToggle");
+  if (btnSupport) {
+    if (isSupportItemMode) {
+      btnSupport.classList.add("active");
+      btnSupport.textContent = t("toggle_support_on");
+    } else {
+      btnSupport.classList.remove("active");
+      btnSupport.textContent = t("toggle_support_off");
+    }
   }
 }
 

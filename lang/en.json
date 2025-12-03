@@ -32,6 +32,8 @@
   "modal_history_title": "Build History",
   "toggle_random_on": "Random Champ: ON",
   "toggle_random_off": "Random Champ: OFF",
+  "toggle_support_on": "Support Item: ON",
+  "toggle_support_off": "Support Item: OFF",
   "shard_offense_adaptive": "Offense: Adaptive Force",
   "shard_offense_attack_speed": "Offense: Attack Speed",
   "shard_offense_ability_haste": "Offense: Ability Haste",

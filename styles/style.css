@@ -294,7 +294,8 @@ body {
   min-width: 180px;
 }
 
-.control-random-toggle {
+.control-random-toggle,
+.control-support-toggle {
   min-width: 170px;
 }
 
@@ -305,7 +306,8 @@ body {
 
 /* トグルON状態 */
 
-.control-random-toggle.active {
+.control-random-toggle.active,
+.control-support-toggle.active {
   background: linear-gradient(135deg, #10b981, #34d399);
   border-color: #34d399;
   color: #064e3b;
@@ -503,7 +505,20 @@ body {
   font-size: 0.9rem;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.rune-style-label:nth-child(2) {
+  padding-left: 4px;
+}
+
+/* ドロップダウンのオプションスタイル修正 */
+select option {
+  background-color: #1f2937;
+  /* ダークグレー背景 */
+  color: #f3f4f6;
+  /* 白文字 */
 }
 
 .runes-two-col {
