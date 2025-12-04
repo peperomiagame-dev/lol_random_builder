@@ -695,9 +695,10 @@ function pickRandomItemsByBuildType(buildType) {
   const mainPool = pool.filter((item) => !isBoots(item));
   const mains = pickRandomDistinct(mainPool, 5);
 
-  const combined = uniqueByName(uniqueById([...chosenBoots, ...mains]));
+  // ブーツを最後に配置（右下）
+  let combined = uniqueByName(uniqueById([...mains, ...chosenBoots]));
 
-  // サポートアイテムモードがONの場合、1つをサポートアイテムに置き換える
+  // サポートアイテムモードがONの場合、先頭（左上）に固定
   if (isSupportItemMode) {
     const supportItemId = SUPPORT_ITEMS[Math.floor(Math.random() * SUPPORT_ITEMS.length)];
     let supportItem = null;
@@ -710,13 +711,24 @@ function pickRandomItemsByBuildType(buildType) {
       const exists = combined.some(i => i.name === supportItem.name);
 
       if (!exists) {
-        // 6枠埋まっている場合はランダムに1つ置き換え、埋まっていない場合は追加
+        // ブーツ以外のアイテムから1つランダムに削除して、先頭にサポートアイテムを追加
         if (combined.length >= 6) {
-          const replaceIndex = Math.floor(Math.random() * 6);
-          combined[replaceIndex] = supportItem;
-        } else {
-          combined.push(supportItem);
+          // ブーツの位置を特定（最後のアイテム）
+          const bootsIndex = combined.findIndex(item => isBoots(item));
+
+          // ブーツ以外からランダムに1つ削除
+          const nonBootsIndices = combined
+            .map((item, idx) => ({ item, idx }))
+            .filter(({ item, idx }) => !isBoots(item))
+            .map(({ idx }) => idx);
+
+          if (nonBootsIndices.length > 0) {
+            const removeIndex = nonBootsIndices[Math.floor(Math.random() * nonBootsIndices.length)];
+            combined.splice(removeIndex, 1);
+          }
         }
+        // サポートアイテムを先頭に追加
+        combined.unshift(supportItem);
       }
     }
   }
