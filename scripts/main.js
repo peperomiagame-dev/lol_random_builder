@@ -85,6 +85,7 @@ const STAT_SHARDS = {
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
+  console.log("Init started");
   try {
     // 最新バージョンを取得
     try {
@@ -110,7 +111,7 @@ async function init() {
     updateLangSelect(currentLang);
 
     // 翻訳データの読み込み
-    await loadTranslations(currentLang);
+    await loadLanguage(currentLang);
 
     // Data Dragon からデータを取得
     await loadDataDragonData();
@@ -121,6 +122,7 @@ async function init() {
 
     // 初期設定
     setRandomChampionMode(true);
+    console.log("Init completed");
 
   } catch (err) {
     console.error("Init error:", err);
@@ -653,12 +655,10 @@ function pickRandomItemsByBuildType(buildType) {
     case "bruiser":
       pool = bruiser.length > 0 ? bruiser : any;
       break;
-    case "random": {
-      const types = ["ap", "ad", "tank", "bruiser"];
-      const picked = types[Math.floor(Math.random() * types.length)];
-      return pickRandomItemsByBuildType(picked);
-    }
-    case "chaos":
+    case "random":
+      // 全アイテムからランダム
+      pool = any;
+      break;
     default:
       pool = any;
       break;
