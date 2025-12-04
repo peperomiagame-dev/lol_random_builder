@@ -1,7 +1,7 @@
 // ===== 設定値 =====
 
-// Riot Data Dragon version
-const DD_VERSION = "15.23.1";
+// Riot Data Dragon version (初期値、起動時に更新)
+let DD_VERSION = "15.24.1";
 
 // UI言語コード → Data Dragon ロケール
 const DD_LOCALE_MAP = {
@@ -10,9 +10,123 @@ const DD_LOCALE_MAP = {
   ko: "ko_KR"
 };
 
-// 画像用ベースURL
-const DD_IMG_BASE = `https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/img`;
+// 画像用ベースURL (バージョン更新後に再設定)
+let DD_IMG_BASE = `https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/img`;
 const DD_IMG_BASE_GENERAL = "https://ddragon.leagueoflegends.com/cdn/img";
+
+// アイテムプールのキャッシュ
+let cachedItemPools = null;
+
+// サポートアイテム（最終進化形）
+const SUPPORT_ITEMS = [
+  "3869", // Celestial Opposition
+  "3870", // Dream Maker
+  "3871", // Zaz'Zak's Realmspike
+  "3876", // Solstice Sleigh
+  "3877"  // Bloodsong
+];
+
+// ステータスシャード（StatMods アイコンを直指定）
+const STAT_SHARDS = {
+  offense: [
+    {
+      id: "Adaptive",
+      icon: "perk-images/StatMods/StatModsAdaptiveForceIcon.png",
+      name: "アダプティブフォース"
+    },
+    {
+      id: "AttackSpeed",
+      icon: "perk-images/StatMods/StatModsAttackSpeedIcon.png",
+      name: "攻撃速度"
+    },
+    {
+      id: "Haste",
+      icon: "perk-images/StatMods/StatModsCDRScalingIcon.png", // AbilityHasteIcon -> CDRScalingIcon
+      name: "スキルヘイスト"
+    }
+  ],
+  flex: [
+    {
+      id: "Adaptive",
+      icon: "perk-images/StatMods/StatModsAdaptiveForceIcon.png",
+      name: "アダプティブフォース"
+    },
+    {
+      id: "MoveSpeed",
+      icon: "perk-images/StatMods/StatModsMovementSpeedIcon.png",
+      name: "移動速度"
+    },
+    {
+      id: "Health",
+      icon: "perk-images/StatMods/StatModsHealthPlusIcon.png",
+      name: "体力"
+    }
+  ],
+  defense: [
+    {
+      id: "HealthScaling",
+      icon: "perk-images/StatMods/StatModsHealthScalingIcon.png",
+      name: "スケーリング体力"
+    },
+    {
+      id: "Armor",
+      icon: "perk-images/StatMods/StatModsArmorIcon.png",
+      name: "物理防御"
+    },
+    {
+      id: "MagicRes",
+      icon: "perk-images/StatMods/StatModsMagicResIcon.png",
+      name: "魔法防御"
+    }
+  ]
+};
+
+// ===== 初期化 =====
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  try {
+    // 最新バージョンを取得
+    try {
+      const vRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
+      if (vRes.ok) {
+        const versions = await vRes.json();
+        if (versions && versions.length > 0) {
+          DD_VERSION = versions[0];
+          DD_IMG_BASE = `https://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/img`;
+          console.log("Updated DD_VERSION:", DD_VERSION);
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to fetch version, using default:", DD_VERSION);
+    }
+
+    // 言語設定の読み込み
+    currentLang = detectInitialLang();
+    const savedLang = localStorage.getItem(STORAGE_LANG_KEY);
+    if (savedLang && DD_LOCALE_MAP[savedLang]) {
+      currentLang = savedLang;
+    }
+    updateLangSelect(currentLang);
+
+    // 翻訳データの読み込み
+    await loadTranslations(currentLang);
+
+    // Data Dragon からデータを取得
+    await loadDataDragonData();
+
+    // イベントリスナーの設定
+    setupLangButtons();
+    setupControls();
+
+    // 初期設定
+    setRandomChampionMode(true);
+
+  } catch (err) {
+    console.error("Init error:", err);
+    showStatus("msg_error");
+  }
+}
 
 // LocalStorage に保存するキー
 const STORAGE_LANG_KEY = "lol_rb_lang";
@@ -73,73 +187,6 @@ const EXCLUDED_ITEM_NAME_KEYWORDS = [
   "Jungle"
 ];
 
-// アイテムプールのキャッシュ
-let cachedItemPools = null;
-
-// サポートアイテム（最終進化形）
-const SUPPORT_ITEMS = [
-  "3869", // Celestial Opposition
-  "3870", // Dream Maker
-  "3871", // Zaz'Zak's Realmspike
-  "3876", // Solstice Sleigh
-  "3877"  // Bloodsong
-];
-
-// ステータスシャード（StatMods アイコンを直指定）
-const STAT_SHARDS = {
-  offense: [
-    {
-      id: "Adaptive",
-      icon: "perk-images/StatMods/StatModsAdaptiveForceIcon.png",
-      name: "アダプティブフォース"
-    },
-    {
-      id: "AttackSpeed",
-      icon: "perk-images/StatMods/StatModsAttackSpeedIcon.png",
-      name: "攻撃速度"
-    },
-    {
-      id: "Haste",
-      icon: "perk-images/StatMods/StatModsAbilityHasteIcon.png",
-      name: "スキルヘイスト"
-    }
-  ],
-  flex: [
-    {
-      id: "Adaptive",
-      icon: "perk-images/StatMods/StatModsAdaptiveForceIcon.png",
-      name: "アダプティブフォース"
-    },
-    {
-      id: "MoveSpeed",
-      icon: "perk-images/StatMods/StatModsMovementSpeedIcon.png",
-      name: "移動速度"
-    },
-    {
-      id: "Health",
-      icon: "perk-images/StatMods/StatModsHealthPlusIcon.png",
-      name: "体力"
-    }
-  ],
-  defense: [
-    {
-      id: "HealthScaling",
-      icon: "perk-images/StatMods/StatModsHealthScalingIcon.png",
-      name: "スケーリング体力"
-    },
-    {
-      id: "Armor",
-      icon: "perk-images/StatMods/StatModsArmorIcon.png",
-      name: "物理防御"
-    },
-    {
-      id: "MagicRes",
-      icon: "perk-images/StatMods/StatModsMagicResIcon.png",
-      name: "魔法防御"
-    }
-  ]
-};
-
 // ===== 状態管理 =====
 let currentLang = "en";
 let translations = {};
@@ -185,6 +232,11 @@ function setActiveLangButton(lang) {
       btn.classList.remove("active");
     }
   });
+}
+
+function updateLangSelect(lang) {
+  // 言語ボタンの状態更新（setActiveLangButtonと同じ役割）
+  setActiveLangButton(lang);
 }
 
 function t(key) {
@@ -238,24 +290,6 @@ function updateChampionButtonLabel(nameOrNull) {
     btn.setAttribute("data-i18n", "btn_open_champion_picker");
     btn.textContent = t("btn_open_champion_picker");
   }
-}
-
-function setRandomChampionMode(enabled) {
-  isRandomChampion = !!enabled;
-  const btn = document.getElementById("btnRandomToggle");
-  if (!btn) return;
-
-  btn.classList.toggle("active", isRandomChampion);
-  btn.setAttribute("aria-pressed", isRandomChampion ? "true" : "false");
-
-  const onText =
-    (translations && translations.toggle_random_on) ||
-    "チャンピオンランダム: ON";
-  const offText =
-    (translations && translations.toggle_random_off) ||
-    "チャンピオンランダム: OFF";
-
-  btn.textContent = isRandomChampion ? onText : offText;
 }
 
 // ===== 言語ロード =====
@@ -338,7 +372,7 @@ async function loadDataDragonData() {
     checkUrlParams();
 
   } catch (err) {
-    console.error("Data load error:", err); // Changed from "Failed to load Data Dragon data" to "Data load error" as per snippet
+    console.error("Data load error:", err);
     showStatus("msg_error");
   }
 }
@@ -441,19 +475,14 @@ function populateChampionUI() {
     // HTML文字列構築による高速化
     const htmlParts = entries.map((champ) => {
       return `
-        <button type="button" class="champion-card-btn" data-champ-id="${champ.id}">
-          <img class="champion-card-icon" src="${DD_IMG_BASE}/champion/${champ.image.full}" alt="${champ.name}" loading="lazy">
-          <div class="champion-card-name">${champ.name}</div>
-        </button>
-      `;
+      <button type="button" class="champion-card-btn" data-champ-id="${champ.id}">
+        <img class="champion-card-icon" src="${DD_IMG_BASE}/champion/${champ.image.full}" alt="${champ.name}" loading="lazy">
+        <div class="champion-card-name">${champ.name}</div>
+      </button>
+    `;
     });
     grid.innerHTML = htmlParts.join("");
 
-    // イベント委譲 (Event Delegation)
-    // 既存のリスナーがあれば削除すべきだが、DOMContentLoadedで一度呼ばれるだけなら問題ない
-    // 再描画のたびにリスナーが増えないように注意が必要だが、grid.innerHTMLで中身は消える
-    // grid自体のリスナーは重複する可能性があるので、属性でチェックするか、
-    // あるいはこの関数外で一度だけ設定するのがベストだが、ここでは簡易的にチェック
     if (!grid.hasAttribute("data-listener-attached")) {
       grid.addEventListener("click", (e) => {
         const btn = e.target.closest(".champion-card-btn");
@@ -646,9 +675,6 @@ function pickRandomItemsByBuildType(buildType) {
   // サポートアイテムモードがONの場合、1つをサポートアイテムに置き換える
   if (isSupportItemMode) {
     const supportItemId = SUPPORT_ITEMS[Math.floor(Math.random() * SUPPORT_ITEMS.length)];
-    // allItemsListが必要だが、cachedItemPoolsには含まれていない可能性があるため修正が必要
-    // classifyItemPoolsの戻り値にallItemsListを含めるか、ここでitemsDataから探す
-    // ここではitemsDataから探す（軽量）
     let supportItem = null;
     if (itemsData && itemsData.data && itemsData.data[supportItemId]) {
       supportItem = { id: supportItemId, ...itemsData.data[supportItemId] };
@@ -667,6 +693,19 @@ function pickRandomItemsByBuildType(buildType) {
           combined.push(supportItem);
         }
       }
+    }
+  }
+
+  // 6個未満の場合の補充ロジック (重複排除で減った分を埋める)
+  if (combined.length < 6) {
+    const { any } = cachedItemPools;
+    const currentNames = new Set(combined.map(i => i.name));
+    const candidates = any.filter(i => !currentNames.has(i.name) && !isBoots(i));
+
+    while (combined.length < 6 && candidates.length > 0) {
+      const idx = Math.floor(Math.random() * candidates.length);
+      combined.push(candidates[idx]);
+      candidates.splice(idx, 1);
     }
   }
 
@@ -754,8 +793,6 @@ function showTooltip(item, element) {
   tooltip.classList.remove("hidden");
 }
 
-// moveTooltipは削除
-
 function hideTooltip() {
   const tooltip = document.getElementById("itemTooltip");
   if (!tooltip) return;
@@ -831,6 +868,10 @@ function renderRunes(runePage) {
     defenseShard
   } = runePage;
 
+  // コンテナのスタイルをリセット
+  container.removeAttribute("style");
+
+  // --- スタイルヘッダー ---
   const styleRow = document.createElement("div");
   styleRow.className = "rune-style-row";
 
@@ -852,24 +893,16 @@ function renderRunes(runePage) {
   styleRow.appendChild(secondaryLabel);
   container.appendChild(styleRow);
 
-  // 行ベースでグリッドを作成（位置ズレ防止のため）
+  // --- ルーン一覧（グリッド） ---
   const gridContainer = document.createElement("div");
   gridContainer.className = "runes-grid-container";
   gridContainer.style.display = "flex";
   gridContainer.style.flexDirection = "column";
   gridContainer.style.gap = "8px";
 
-  // メインパスのルーンリスト（キーストーン + 3つ）
   const mainRunesList = [keystone, ...primaryRunes];
-
-  // サブパスのルーンリスト（2つ）。表示位置を合わせるため、先頭にnullを入れて2行目・3行目に表示させる
-  // 行1: キーストーン / 空
-  // 行2: メイン1 / サブ1
-  // 行3: メイン2 / サブ2
-  // 行4: メイン3 / 空
   const subRunesList = [null, ...secondaryRunes, null];
 
-  // 4行分生成
   for (let i = 0; i < 4; i++) {
     const row = document.createElement("div");
     row.className = "rune-grid-row";
@@ -908,24 +941,38 @@ function renderRunes(runePage) {
 
     gridContainer.appendChild(row);
   }
-
   container.appendChild(gridContainer);
 
+  // --- シャード（縦並び） ---
   const shardsRow = document.createElement("div");
   shardsRow.className = "rune-shards-row";
+  shardsRow.style.display = "flex";
+  shardsRow.style.flexDirection = "column"; // 縦並び
+  shardsRow.style.gap = "8px";
+  shardsRow.style.marginTop = "16px";
+  shardsRow.style.paddingTop = "12px";
+  shardsRow.style.borderTop = "1px solid rgba(255, 255, 255, 0.1)";
 
   function createShardElement(shard) {
     if (!shard) return null;
     const shardDiv = document.createElement("div");
     shardDiv.className = "rune-shard";
+    shardDiv.style.display = "flex";
+    shardDiv.style.alignItems = "center";
+    shardDiv.style.gap = "12px";
 
     const icon = document.createElement("img");
     icon.className = "rune-icon";
     icon.src = `${DD_IMG_BASE_GENERAL}/${shard.icon}`;
     icon.alt = shard.name;
+    // アイコンサイズ調整
+    icon.style.width = "24px";
+    icon.style.height = "24px";
 
     const label = document.createElement("span");
     label.textContent = shard.name;
+    label.style.fontSize = "0.9rem";
+    label.style.color = "#d1d5db";
 
     shardDiv.appendChild(icon);
     shardDiv.appendChild(label);
@@ -1414,17 +1461,3 @@ function generateBuild() {
   // 履歴に追加
   saveToHistory(currentBuildResult);
 }
-
-// ===== 初期化 =====
-
-document.addEventListener("DOMContentLoaded", () => {
-  currentLang = detectInitialLang();
-  setupLangButtons();
-  setupControls();
-
-  setRandomChampionMode(true);
-
-  loadLanguage(currentLang).then(() => {
-    loadDataDragonData();
-  });
-});

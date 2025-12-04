@@ -933,6 +933,14 @@ select option {
     margin: 20px;
     max-height: calc(100vh - 40px);
   }
+
+  #resultRunes {
+    flex-direction: column !important;
+  }
+
+  .rune-column {
+    width: 100%;
+  }
 }
 
 /* ===== ツールチップ ===== */
