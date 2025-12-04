@@ -285,7 +285,9 @@ body {
 
 .control-random-toggle,
 .control-support-toggle {
-  min-width: 170px;
+  width: 200px;
+  flex-shrink: 0;
+  text-align: center;
 }
 
 .control-generate-btn {

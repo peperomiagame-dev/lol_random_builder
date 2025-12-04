@@ -369,9 +369,6 @@ async function loadDataDragonData() {
     populateChampionUI();
     showStatus("msg_ready");
 
-    // 初回ビルド生成
-    generateBuild();
-
     // URLパラメータがあればビルドを復元
     checkUrlParams();
 

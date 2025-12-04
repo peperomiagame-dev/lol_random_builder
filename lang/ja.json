@@ -11,6 +11,7 @@
   "btn_share_build": "🔗 URLで共有",
   "btn_show_history": "📜 履歴を表示",
   "champion_placeholder": "チャンピオンを選択",
+  "build_type_placeholder": "ビルドタイプを選択",
   "build_type_ap": "AP",
   "build_type_ad": "AD",
   "build_type_tank": "タンク",

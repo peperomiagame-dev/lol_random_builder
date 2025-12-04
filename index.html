@@ -60,6 +60,9 @@
 
           <!-- ビルド方針（ラベル無し） -->
           <select id="buildTypeSelect" class="select control-buildtype">
+            <option value="" disabled selected data-i18n="build_type_placeholder">
+              ビルドタイプを選択
+            </option>
             <option value="ap" data-i18n="build_type_ap">
               AP
             </option>
@@ -69,7 +72,7 @@
             <option value="tank" data-i18n="build_type_tank">
               タンク
             </option>
-            <option value="random" data-i18n="build_type_random" selected>
+            <option value="random" data-i18n="build_type_random">
               ランダム
             </option>
 

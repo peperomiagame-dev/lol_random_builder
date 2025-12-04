@@ -11,6 +11,7 @@
   "btn_share_build": "🔗 Share URL",
   "btn_show_history": "📜 History",
   "champion_placeholder": "Select Champion",
+  "build_type_placeholder": "Select Build Type",
   "build_type_ap": "AP",
   "build_type_ad": "AD",
   "build_type_tank": "Tank",
