@@ -285,14 +285,17 @@ body {
 
 .control-random-toggle,
 .control-support-toggle {
-  width: 200px;
+  width: 180px;
   flex-shrink: 0;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .control-generate-btn {
   flex: 1 1 auto;
-  min-width: 180px;
+  min-width: 140px;
 }
 
 /* トグルON状態 */
