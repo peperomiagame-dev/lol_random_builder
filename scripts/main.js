@@ -548,6 +548,15 @@ function uniqueById(list) {
   });
 }
 
+function uniqueByName(list) {
+  const seen = new Set();
+  return list.filter((item) => {
+    if (seen.has(item.name)) return false;
+    seen.add(item.name);
+    return true;
+  });
+}
+
 function classifyItemPools(allItems) {
   const boots = [];
   const ap = [];
@@ -632,7 +641,7 @@ function pickRandomItemsByBuildType(buildType) {
   const mainPool = pool.filter((item) => !isBoots(item));
   const mains = pickRandomDistinct(mainPool, 5);
 
-  const combined = uniqueById([...chosenBoots, ...mains]);
+  const combined = uniqueByName(uniqueById([...chosenBoots, ...mains]));
 
   // サポートアイテムモードがONの場合、1つをサポートアイテムに置き換える
   if (isSupportItemMode) {
@@ -646,12 +655,17 @@ function pickRandomItemsByBuildType(buildType) {
     }
 
     if (supportItem) {
-      // 6枠埋まっている場合はランダムに1つ置き換え、埋まっていない場合は追加
-      if (combined.length >= 6) {
-        const replaceIndex = Math.floor(Math.random() * 6);
-        combined[replaceIndex] = supportItem;
-      } else {
-        combined.push(supportItem);
+      // 既に同じ名前のアイテムがあるかチェック（ID違いの同名アイテム対策）
+      const exists = combined.some(i => i.name === supportItem.name);
+
+      if (!exists) {
+        // 6枠埋まっている場合はランダムに1つ置き換え、埋まっていない場合は追加
+        if (combined.length >= 6) {
+          const replaceIndex = Math.floor(Math.random() * 6);
+          combined[replaceIndex] = supportItem;
+        } else {
+          combined.push(supportItem);
+        }
       }
     }
   }
