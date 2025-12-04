@@ -187,7 +187,7 @@ const EXCLUDED_ITEM_NAME_KEYWORDS = [
   "Scorchclaw",
   "ジャングル", // Jungle item generic check
   "Jungle",
-  "冷徹な一撃", // Statikk Shiv
+  "冷酷な一撃", // Statikk Shiv
   "Statikk Shiv"
 ];
 
@@ -595,7 +595,6 @@ function classifyItemPools(allItems) {
   const ap = [];
   const ad = [];
   const tank = [];
-  const bruiser = [];
   const any = [];
 
   // ステータス閾値の定義
@@ -642,23 +641,20 @@ function classifyItemPools(allItems) {
 
     // 防御ステータスがあるか
     const hasDefense = isHighHP || isHighArmor || isHighMR;
-    // 攻撃ステータスがあるか
-    const hasOffense = isHighAP || isHighAD || isHighAS;
+    // 攻撃ステータスがあるか（APまたはAD/AS）
+    const hasAnyOffense = apValue > 0 || adValue > 0 || asValue > 0;
 
-    // APビルド: AP高い（防御は問わない）
+    // APビルド: AP高い
     if (isHighAP) ap.push(item);
 
-    // ADビルド: ADまたはAS高い（防御は問わない）
+    // ADビルド: ADまたはAS高い
     if (isHighAD || isHighAS) ad.push(item);
 
-    // Tankビルド: 防御高い（攻撃は問わない）
-    if (hasDefense) tank.push(item);
-
-    // Bruiserビルド: 攻撃+防御両方高い
-    if (hasOffense && hasDefense) bruiser.push(item);
+    // Tankビルド: 防御高い かつ 攻撃ステータスが一切ない
+    if (hasDefense && !hasAnyOffense) tank.push(item);
   });
 
-  return { boots, ap, ad, tank, bruiser, any };
+  return { boots, ap, ad, tank, any };
 }
 
 function pickRandomItemsByBuildType(buildType) {
@@ -671,7 +667,7 @@ function pickRandomItemsByBuildType(buildType) {
     cachedItemPools = classifyItemPools(allItems);
   }
 
-  const { boots, ap, ad, tank, bruiser, any } = cachedItemPools;
+  const { boots, ap, ad, tank, any } = cachedItemPools;
 
   let pool;
   switch (buildType) {
@@ -683,9 +679,6 @@ function pickRandomItemsByBuildType(buildType) {
       break;
     case "tank":
       pool = tank.length > 0 ? tank : any;
-      break;
-    case "bruiser":
-      pool = bruiser.length > 0 ? bruiser : any;
       break;
     case "random":
       // 全アイテムからランダム
