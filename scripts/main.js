@@ -186,7 +186,9 @@ const EXCLUDED_ITEM_NAME_KEYWORDS = [
   "スコーチクロウ",
   "Scorchclaw",
   "ジャングル", // Jungle item generic check
-  "Jungle"
+  "Jungle",
+  "冷徹な一撃", // Statikk Shiv
+  "Statikk Shiv"
 ];
 
 // ===== 状態管理 =====
@@ -596,6 +598,14 @@ function classifyItemPools(allItems) {
   const bruiser = [];
   const any = [];
 
+  // ステータス閾値の定義
+  const AP_THRESHOLD = 60;        // AP ≥ 60
+  const AD_THRESHOLD = 40;        // AD ≥ 40
+  const AS_THRESHOLD = 0.25;      // AS ≥ 25%
+  const HP_THRESHOLD = 300;       // HP ≥ 300
+  const ARMOR_THRESHOLD = 40;     // Armor ≥ 40
+  const MR_THRESHOLD = 40;        // MR ≥ 40
+
   allItems.forEach((item) => {
     const id = item.id;
 
@@ -613,17 +623,39 @@ function classifyItemPools(allItems) {
 
     any.push(item);
 
-    const tags = item.tags || [];
-    const hasAP = tags.includes("SpellDamage");
-    const hasAD = tags.includes("Damage") || tags.includes("AttackDamage");
-    const hasHP = tags.includes("Health");
-    const hasArmor = tags.includes("Armor");
-    const hasMR = tags.includes("SpellBlock");
+    // ステータス値を取得
+    const stats = item.stats || {};
+    const apValue = stats.FlatMagicDamageMod || 0;
+    const adValue = stats.FlatPhysicalDamageMod || 0;
+    const asValue = stats.PercentAttackSpeedMod || 0;
+    const hpValue = stats.FlatHPPoolMod || 0;
+    const armorValue = stats.FlatArmorMod || 0;
+    const mrValue = stats.FlatSpellBlockMod || 0;
 
-    if (hasAP) ap.push(item);
-    if (hasAD) ad.push(item);
-    if (hasHP || hasArmor || hasMR) tank.push(item);
-    if ((hasAD || hasAP) && (hasHP || hasArmor || hasMR)) bruiser.push(item);
+    // 各閾値を超えているかチェック
+    const isHighAP = apValue >= AP_THRESHOLD;
+    const isHighAD = adValue >= AD_THRESHOLD;
+    const isHighAS = asValue >= AS_THRESHOLD;
+    const isHighHP = hpValue >= HP_THRESHOLD;
+    const isHighArmor = armorValue >= ARMOR_THRESHOLD;
+    const isHighMR = mrValue >= MR_THRESHOLD;
+
+    // 防御ステータスがあるか
+    const hasDefense = isHighHP || isHighArmor || isHighMR;
+    // 攻撃ステータスがあるか
+    const hasOffense = isHighAP || isHighAD || isHighAS;
+
+    // APビルド: AP高い（防御は問わない）
+    if (isHighAP) ap.push(item);
+
+    // ADビルド: ADまたはAS高い（防御は問わない）
+    if (isHighAD || isHighAS) ad.push(item);
+
+    // Tankビルド: 防御高い（攻撃は問わない）
+    if (hasDefense) tank.push(item);
+
+    // Bruiserビルド: 攻撃+防御両方高い
+    if (hasOffense && hasDefense) bruiser.push(item);
   });
 
   return { boots, ap, ad, tank, bruiser, any };
