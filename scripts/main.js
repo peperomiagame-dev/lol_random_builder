@@ -647,8 +647,8 @@ function classifyItemPools(allItems) {
     // APビルド: AP高い
     if (isHighAP) ap.push(item);
 
-    // ADビルド: ADまたはAS高い
-    if (isHighAD || isHighAS) ad.push(item);
+    // ADビルド: ADまたはAS高い、ただしAPも高い場合は除外（ナッシャートゥースなど）
+    if ((isHighAD || isHighAS) && !isHighAP) ad.push(item);
 
     // Tankビルド: 防御高い かつ 攻撃ステータスが一切ない
     if (hasDefense && !hasAnyOffense) tank.push(item);
@@ -1314,7 +1314,6 @@ function setupControls() {
   const btnRandomToggle = document.getElementById("btnRandomToggle");
 
   // 新機能ボタン
-  const btnCopy = document.getElementById("btnCopyBuild");
   const btnShare = document.getElementById("btnShareBuild");
   const btnHistory = document.getElementById("btnShowHistory");
   const btnCloseHistory = document.getElementById("btnCloseHistoryModal");
@@ -1364,10 +1363,6 @@ function setupControls() {
     btnSupportToggle.addEventListener("click", () => {
       toggleSupportItemMode();
     });
-  }
-
-  if (btnCopy) {
-    btnCopy.addEventListener("click", copyBuildToClipboard);
   }
 
   if (btnShare) {
