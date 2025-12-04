@@ -599,13 +599,14 @@ select option {
   padding: 0 24px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
   font-size: 0.85rem;
   color: #c4b5fd;
 }
 
-.footer-actions {
+.footer-actions-left,
+.footer-actions-right {
   display: flex;
   gap: 8px;
   align-items: center;
