@@ -515,6 +515,10 @@ function isItemAvailableOnSR(item) {
 }
 
 function isBoots(item) {
+  // Zephyr (3172) もブーツ扱いにする
+  if (item.id === "3172") return true;
+  // groupがBootsの場合もブーツ扱い
+  if (item.group === "Boots") return true;
   return Array.isArray(item.tags) && item.tags.includes("Boots");
 }
 
@@ -561,9 +565,22 @@ function isCompletedItem(item) {
 function pickRandomDistinct(list, count) {
   const copy = list.slice();
   const result = [];
+  const usedGroups = new Set();
+
   while (copy.length > 0 && result.length < count) {
     const idx = Math.floor(Math.random() * copy.length);
-    result.push(copy[idx]);
+    const item = copy[idx];
+
+    // 排他制御（同じgroupを持つアイテムは重複させない）
+    if (item.group && usedGroups.has(item.group)) {
+      copy.splice(idx, 1);
+      continue;
+    }
+
+    result.push(item);
+    if (item.group) {
+      usedGroups.add(item.group);
+    }
     copy.splice(idx, 1);
   }
   return result;
