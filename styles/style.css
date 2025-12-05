@@ -285,7 +285,7 @@ body {
 
 .control-random-toggle,
 .control-support-toggle {
-  width: 180px;
+  width: 220px;
   flex-shrink: 0;
   text-align: center;
   white-space: nowrap;
@@ -294,8 +294,9 @@ body {
 }
 
 .control-generate-btn {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 140px;
+  max-width: 200px;
 }
 
 /* トグルON状態 */
